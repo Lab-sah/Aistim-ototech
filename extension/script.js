@@ -841,6 +841,13 @@ $("upd-cek").addEventListener("click", async () => {
   if (err) $("upd-info").textContent = "Gagal memeriksa: " + err;
   $("upd-cek").disabled = false;
 });
+// Pilihan fullscreen dibaca background.js saat Chrome dimulai (kunci fsStart, bawaan aktif)
+async function muatFullscreen() {
+  $("fs-auto").checked = (await store.get("fsStart", true)) !== false;
+}
+$("fs-auto").addEventListener("change", async () => {
+  try { await store.set("fsStart", $("fs-auto").checked); } catch (e) { msg("Gagal menyimpan pilihan."); }
+});
 $("upd-auto").addEventListener("change", async () => {
   try { await store.set("updAuto", $("upd-auto").checked); } catch (e) { msg("Gagal menyimpan pilihan."); }
 });
@@ -896,5 +903,6 @@ async function mulai() {
   pantau();
   muatMenuBersama(false); // tidak ditunggu: halaman sudah tampil dengan salinan tersimpan
   muatPembaruan();
+  muatFullscreen();
 }
 mulai().catch((e) => msg("Gagal memuat menu: " + (e && e.message ? e.message : e)));

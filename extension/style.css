@@ -201,6 +201,7 @@ body {
 .upd small { font-size: 12px; line-height: 1.4; color: var(--redup); }
 .upd-auto { display: flex; align-items: center; gap: 8px; font-size: 12px; color: #4b5563; }
 .upd-auto input { margin: 0; accent-color: var(--merah); }
+.upd-auto small { display: inline; margin: 0; }
 
 .msg { min-height: 18px; margin: 8px 4px 0; font-size: 13px; color: #374151; }
 

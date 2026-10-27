@@ -35,6 +35,7 @@ Extension Chrome yang mengganti halaman **tab baru** dengan tampilan bergaya apl
 - **Ubah dan hapus** ada di sisi belakang kartu: ketuk **Atur**, lalu **Ubah** atau **Hapus** per baris.
 - **Ikon otomatis** dari favicon situs lewat Google (hanya domain induk yang dikirim). Bisa diganti emoji atau huruf lewat **Ikon sendiri**.
 - **Pembaruan**: extension memeriksa rilis terbaru di GitHub dan menampilkan tombol **Unduh** bila ada versi baru. Tidak memasang apa pun sendiri.
+- **Fullscreen saat Chrome dibuka**: layanan latar belakang (`background.js`) menjadikan jendela fullscreen (seperti F11) setiap Chrome dimulai; keluar dengan F11. Tidak berlaku saat extension baru dipasang atau dimuat ulang, hanya pada pembukaan Chrome berikutnya. Matikan lewat kotak **Fullscreen saat Chrome dibuka** di Atur. Tidak butuh izin tambahan.
 - **Responsif** dan mengikuti `prefers-reduced-motion`.
 
 > **Catatan repo privat**: menu bersama dan pemeriksaan pembaruan membaca `raw.githubusercontent.com` dan `api.github.com` tanpa token. Selama repo ini **privat**, kedua permintaan itu dijawab 404, jadi `main.json` dianggap belum ada dan tidak ada pembaruan terdeteksi. Menu pribadi, jam, dan kata-kata tetap berfungsi penuh. Jadikan repo publik bila fitur itu dipakai.
@@ -61,7 +62,7 @@ Menu pribadi tersimpan di browser (`chrome.storage.local`). Tidak ada akun dan t
 
 ## Struktur
 
-- `extension/`: `manifest.json`, `newtab.html`, `script.js`, `style.css`, `icons/`
+- `extension/`: `manifest.json`, `newtab.html`, `script.js`, `background.js`, `style.css`, `icons/`
 - `main.json`: daftar menu bersama
 - `tools/id-extension.py`: pemeriksa ID tetap
 - `.github/workflows/release.yml`: setiap push ke `main` membuat atau memperbarui release `v<versi>` dengan `Ototech-Tab-<versi>.zip` (naikkan `version` di `manifest.json` untuk rilis baru)

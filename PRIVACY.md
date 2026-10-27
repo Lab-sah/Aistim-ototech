@@ -4,7 +4,7 @@ Ototech Tab tidak punya akun, server, analitik, atau iklan, dan tidak mengirim d
 
 ## Data yang disimpan di perangkatmu
 
-Hanya di browser ini (`chrome.storage.local`): daftar menu pintasan yang kamu isi sendiri (nama, link, ikon emoji/huruf bila diisi, dan id yang diturunkan dari link), hasil pemeriksaan pembaruan terakhir (nomor versi dan waktu), salinan terakhir menu bersama dari `main.json`, dan pilihan Periksa otomatis. Menghapus extension atau datanya dari pengaturan browser menghapus semuanya.
+Hanya di browser ini (`chrome.storage.local`): daftar menu pintasan yang kamu isi sendiri (nama, link, ikon emoji/huruf bila diisi, dan id yang diturunkan dari link), hasil pemeriksaan pembaruan terakhir (nomor versi dan waktu), salinan terakhir menu bersama dari `main.json`, dan pilihan Periksa otomatis serta Fullscreen saat Chrome dibuka. Menghapus extension atau datanya dari pengaturan browser menghapus semuanya.
 
 ## Koneksi jaringan
 
@@ -14,7 +14,7 @@ Ada tiga jenis permintaan. **1. Ikon situs**: mengambil gambar ikon situs dari l
 
 **3. Pemeriksaan pembaruan**: saat tab dibuka (paling sering sekali tiap 6 jam, dan saat kamu menekan **Periksa pembaruan**), extension meminta `https://api.github.com/repos/Lab-sah/Aistim-ototech/releases/latest`. Permintaan ini tanpa token, tanpa cookie, dan tanpa data pribadimu; yang dibaca hanya nomor versi dan daftar berkas rilis. Seperti permintaan web biasa, GitHub dapat mencatat alamat IP dan informasi browser sesuai kebijakan GitHub. Pemeriksaan otomatis bisa dimatikan lewat kotak **Periksa otomatis saat tab dibuka** di sisi belakang kartu Menu (Atur). Extension tidak mengunduh atau memasang pembaruan sendiri: tombol Unduh hanya membuka halaman unduhan GitHub di tab baru.
 
-Extension tidak meminta izin situs (`host_permissions`) apa pun; izin yang dipakai hanya `storage`.
+Extension tidak meminta izin situs (`host_permissions`) apa pun; izin yang dipakai hanya `storage`. Layanan latar belakang hanya mengatur jendela menjadi fullscreen saat Chrome dimulai; ia tidak membuka koneksi jaringan.
 
 ## Kode jarak jauh
 

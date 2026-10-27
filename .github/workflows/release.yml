@@ -27,6 +27,7 @@ jobs:
       - name: Build ZIP
         run: |
           node --check extension/script.js
+          node --check extension/background.js
           VERSION=$(python3 -c "import json;print(json.load(open('extension/manifest.json'))['version'])")
           echo "VERSION=$VERSION" >> "$GITHUB_ENV"
           ZIP="Ototech-Tab-$VERSION.zip"
