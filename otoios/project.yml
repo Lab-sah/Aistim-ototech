@@ -1,0 +1,39 @@
+# Proyek Xcode dibuat dari berkas ini dengan XcodeGen (brew install xcodegen; xcodegen generate). Halaman web di aplikasi
+# disalin dari ../extension ke OtoApp/web oleh sync-web.sh sebelum membuat proyek (di GitHub Actions dilakukan otomatis).
+name: OtoApp
+options:
+  bundleIdPrefix: com.ototech
+  deploymentTarget:
+    iOS: "16.0"
+settings:
+  base:
+    SWIFT_VERSION: "5.0"
+    MARKETING_VERSION: "1.0.0"
+    CURRENT_PROJECT_VERSION: "1"
+targets:
+  OtoApp:
+    type: application
+    platform: iOS
+    sources:
+      - path: OtoApp
+        excludes:
+          - "web/**"
+      - path: OtoApp/web
+        type: folder
+        buildPhase: resources
+    info:
+      path: OtoApp/Info.plist
+      properties:
+        CFBundleDisplayName: Ototech
+        UILaunchScreen: {}
+        UISupportedInterfaceOrientations:
+          - UIInterfaceOrientationPortrait
+          - UIInterfaceOrientationLandscapeLeft
+          - UIInterfaceOrientationLandscapeRight
+        ITSAppUsesNonExemptEncryption: false
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.ototech.app
+        ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
+        TARGETED_DEVICE_FAMILY: "1,2"
+        GENERATE_INFOPLIST_FILE: NO

@@ -44,6 +44,10 @@ Extension Chrome yang mengganti halaman **tab baru** dengan tampilan bergaya apl
 
 Folder [`otoapp/`](otoapp) berisi kode sumber aplikasi Android (WebView) yang membuka halaman ini dari dalam aplikasi dan memperbarui halamannya dari GitHub. APK dibangun lewat GitHub Actions; lihat [otoapp/README.md](otoapp/README.md).
 
+## Aplikasi iOS (otoios)
+
+Folder [`otoios/`](otoios) berisi versi iOS (WKWebView) dengan cara kerja yang sama. IPA dibangun lewat GitHub Actions tanpa tanda tangan Apple, untuk dipasang lewat AltStore atau Sideloadly; lihat [otoios/README.md](otoios/README.md).
+
 ## ID tetap
 
 ID extension tidak berubah walau dipasang dari folder berbeda, karena `extension/manifest.json` memuat `key` (public key):
@@ -69,5 +73,6 @@ Menu pribadi tersimpan di browser (`chrome.storage.local`). Tidak ada akun dan t
 - `extension/`: `manifest.json`, `newtab.html`, `script.js`, `background.js`, `style.css`, `icons/`
 - `main.json`: daftar menu bersama
 - `otoapp/`: kode sumber aplikasi Android (WebView)
+- `otoios/`: kode sumber aplikasi iOS (WKWebView)
 - `tools/id-extension.py`: pemeriksa ID tetap
 - `.github/workflows/release.yml`: setiap push ke `main` membuat atau memperbarui release `v<versi>` dengan `Ototech-Tab-<versi>.zip` (naikkan `version` di `manifest.json` untuk rilis baru)

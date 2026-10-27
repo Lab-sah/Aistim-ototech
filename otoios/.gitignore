@@ -1,0 +1,5 @@
+OtoApp.xcodeproj/
+build/
+OtoApp/web/
+OtoApp/Info.plist
+*.ipa

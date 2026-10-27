@@ -9,6 +9,7 @@ on:
     paths-ignore:
       - main.json # daftar menu bersama diedit lewat GitHub; tidak perlu rilis baru
       - otoapp/** # aplikasi Android punya workflow sendiri (otoapp.yml)
+      - otoios/** # aplikasi iOS punya workflow sendiri (otoios.yml)
   workflow_dispatch:
 
 permissions:

@@ -1,0 +1,111 @@
+name: OtoApp IPA
+
+# Membangun otoios/ menjadi OtoApp-<versi>.ipa TANPA tanda tangan Apple (untuk dipasang lewat AltStore, Sideloadly, dsb.
+# yang menandatangani ulang dengan Apple ID pemakai). IPA ditaruh di release "otoios-v<versi>" (prarilis, bukan "latest",
+# supaya pemeriksaan pembaruan extension yang memakai releases/latest tidak terganggu) dan di cabang "otoios" (OtoApp.ipa).
+# Naikkan MARKETING_VERSION di otoios/project.yml untuk rilis dengan nomor baru. Halaman web di dalam aplikasi diambil dari
+# folder extension/ saat build; di perangkat, aplikasi memperbarui halamannya sendiri dari GitHub.
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - otoios/**
+      - .github/workflows/otoios.yml
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: otoios-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  ipa:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Pasang XcodeGen
+        run: brew install xcodegen
+
+      - name: Salin halaman web dan buat proyek Xcode
+        working-directory: otoios
+        run: |
+          sh sync-web.sh
+          xcodegen generate
+
+      - name: Bangun aplikasi (tanpa tanda tangan)
+        working-directory: otoios
+        run: |
+          set -o pipefail
+          xcodebuild -project OtoApp.xcodeproj -scheme OtoApp -configuration Release \
+            -sdk iphoneos -destination 'generic/platform=iOS' -derivedDataPath build \
+            CODE_SIGNING_ALLOWED=NO CODE_SIGNING_REQUIRED=NO CODE_SIGN_IDENTITY="" \
+            CURRENT_PROJECT_VERSION=${{ github.run_number }} \
+            build 2>&1 | tee build.log
+
+      - name: Tampilkan galat build
+        if: failure()
+        run: |
+          # Potongan galat ditampilkan sebagai anotasi supaya bisa dibaca tanpa membuka log lengkap
+          { grep -E "error:|\*\* BUILD FAILED|xcodegen|Error" otoios/build.log || true; } | head -n 40 > galat.txt
+          [ -s galat.txt ] || tail -n 40 otoios/build.log > galat.txt 2>/dev/null || echo "build belum berjalan (lihat log langkah sebelumnya)" > galat.txt
+          MSG=$(python3 -c "import sys;print(open('galat.txt',errors='replace').read().replace('%','%25').replace('\r','').replace('\n','%0A'))")
+          echo "::error title=Galat build::$MSG"
+
+      - name: Bungkus menjadi IPA
+        run: |
+          VERSION=$(grep -oE 'MARKETING_VERSION: *"[^"]+"' otoios/project.yml | head -1 | grep -oE '[0-9]+\.[0-9]+\.[0-9]+')
+          IPA="OtoApp-$VERSION.ipa"
+          APP="otoios/build/Build/Products/Release-iphoneos/OtoApp.app"
+          test -d "$APP"
+          rm -rf "$RUNNER_TEMP/ipa" && mkdir -p "$RUNNER_TEMP/ipa/Payload"
+          cp -R "$APP" "$RUNNER_TEMP/ipa/Payload/"
+          (cd "$RUNNER_TEMP/ipa" && zip -qry "$GITHUB_WORKSPACE/$IPA" Payload)
+          echo "VERSION=$VERSION" >> "$GITHUB_ENV"
+          echo "IPA=$IPA" >> "$GITHUB_ENV"
+          ls -l "$IPA"
+          unzip -l "$IPA" | grep -E "Info.plist|newtab.html|manifest.json" | head
+
+      - name: Buat atau perbarui release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          TAG="otoios-v$VERSION"
+          if gh release view "$TAG" >/dev/null 2>&1; then
+            gh release upload "$TAG" "$IPA" --clobber
+          else
+            gh release create "$TAG" "$IPA" --title "OtoApp iOS v$VERSION" \
+              --notes "Unduh **$IPA** lalu pasang lewat AltStore atau Sideloadly (berkas ini tidak bertanda tangan Apple). Halaman di dalam aplikasi diperbarui otomatis dari GitHub." \
+              --prerelease --latest=false \
+              || gh release upload "$TAG" "$IPA" --clobber
+          fi
+
+      # Cabang "otoios" hanya berisi IPA terbaru (OtoApp.ipa) dan README singkat; dibuat ulang satu commit tiap build (push paksa).
+      # Link unduh tetap: https://github.com/<pemilik>/<repo>/raw/otoios/OtoApp.ipa
+      - name: Taruh IPA di cabang otoios
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          D="$RUNNER_TEMP/cabang-otoios"
+          rm -rf "$D" && mkdir -p "$D"
+          cp "$IPA" "$D/OtoApp.ipa"
+          {
+            echo "# OtoApp (iOS)"
+            echo
+            echo "IPA terbaru: **OtoApp.ipa** (v$VERSION, build #${{ github.run_number }}). Tidak bertanda tangan Apple: pasang lewat AltStore atau Sideloadly."
+            echo
+            echo "Unduh langsung: https://github.com/${{ github.repository }}/raw/otoios/OtoApp.ipa"
+            echo
+            echo "Kode sumber ada di folder otoios/ cabang main."
+          } > "$D/README.md"
+          cd "$D"
+          git init -q -b otoios
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git commit -q -m "OtoApp iOS v$VERSION (build #${{ github.run_number }})"
+          git remote add origin "https://x-access-token:${GH_TOKEN}@github.com/${{ github.repository }}.git"
+          git push -f origin otoios
