@@ -1,0 +1,18 @@
+{
+  "manifest_version": 3,
+  "name": "Ototech Tab",
+  "version": "1.0.0",
+  "description": "Tab baru berisi jam, kata-kata harian, dan menu pintasan: tambah, ubah, dan hapus link dengan ikon otomatis dari situsnya.",
+  "permissions": [
+    "storage"
+  ],
+  "icons": {
+    "16": "icons/icon16.png",
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
+  },
+  "chrome_url_overrides": {
+    "newtab": "newtab.html"
+  },
+  "key": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAk8NAlVvWOHr1UYsnAcy7C27YFmhrk/yWmU7jAXrurWx9usfzcxobirQ/fThhbNY3htVJuT65QY7xWNasyikUtiON/Gwwp8nx4yX7r/nCUwEhc/gnL+9NGAegTRFb/4l85RmxkbRLjr+iH+cWpta/igFjxW50aTJkW/8tp/29TY4PASAp2cMrU1GXr8EEENwA8iddruLUjvnPGsPlrm1VmVkU4SR09bcc17AUfVY24XaUAnHb0QE6MVTqZcMIREYa00muyON2vkmMGOmlY3bZwa1zPL/PI675+xc/Yocl0vcu4XzpcZ3D+/V4oNK75n9+MdMAz2BFFW4ayDyqZzs3xQIDAQAB"
+}

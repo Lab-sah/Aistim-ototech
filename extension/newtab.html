@@ -1,0 +1,106 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Ototech Tab</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <main class="halaman">
+    <!-- Muncul hanya bila ada versi yang lebih baru di GitHub -->
+    <a id="upd-pill" class="upd-pill" href="#" target="_blank" rel="noopener noreferrer" hidden><span aria-hidden="true">⬆</span><span id="upd-pill-teks"></span></a>
+
+    <!-- Kartu atas: jam dan kata-kata -->
+    <section class="jam" aria-label="Jam dan kata-kata">
+      <div id="clock" class="clock">00.00</div>
+      <div id="date" class="date"></div>
+      <figure class="quote">
+        <blockquote id="quote-text"></blockquote>
+        <figcaption id="quote-author"></figcaption>
+      </figure>
+    </section>
+
+    <section class="pins" aria-label="Menu">
+      <!-- Kartu berbalik: depan = menu untuk dibuka, belakang = atur (ubah, hapus, tambah) -->
+      <div id="flip" class="flip">
+        <div id="flip-in" class="flip-in">
+          <div id="face-depan" class="face depan">
+            <div class="pins-head">
+              <h2>Menu</h2>
+              <button id="btn-flip" class="pins-btn" type="button" aria-controls="face-belakang" aria-expanded="false">Atur ⟲</button>
+            </div>
+            <div id="pin-grid" class="pin-grid"></div>
+          </div>
+          <div id="face-belakang" class="face belakang">
+            <div class="pins-head">
+              <h2>Atur menu</h2>
+              <button id="btn-flip-balik" class="pins-btn pri" type="button">Selesai ⟲</button>
+            </div>
+            <p id="pin-kosong" class="pins-kosong" hidden>Belum ada menu.</p>
+            <ul id="pin-list" class="pin-list"></ul>
+            <div class="sumber">
+              <small id="sumber-info" role="status"></small>
+              <button id="sumber-segar" class="pins-btn" type="button">Segarkan</button>
+            </div>
+            <button id="pin-tambah" class="pin-tambah" type="button">+ Tambah menu</button>
+            <div class="upd">
+              <div class="upd-baris">
+                <button id="upd-cek" class="pins-btn" type="button">Periksa pembaruan</button>
+                <a id="upd-unduh" class="pins-btn pri" href="#" target="_blank" rel="noopener noreferrer" hidden>Unduh</a>
+              </div>
+              <small id="upd-info" role="status"></small>
+              <small id="upd-cara" hidden>Ekstrak zip ke folder yang sama, lalu tekan ⟳ pada kartu extension di halaman Ekstensi. Menu tidak hilang.</small>
+              <label class="upd-auto"><input id="upd-auto" type="checkbox" checked> Periksa otomatis saat tab dibuka</label>
+            </div>
+            <small id="ver" class="ver"></small>
+          </div>
+        </div>
+      </div>
+      <p id="msg" class="msg" role="status"></p>
+    </section>
+  </main>
+
+  <dialog id="dlg-pin">
+    <form method="dialog" id="form-pin">
+      <h2 id="pin-title">Tambah menu</h2>
+      <label>Nama
+        <input id="pin-nama" type="text" maxlength="30" placeholder="Kosong: pakai nama situs" autocomplete="off">
+      </label>
+      <label>Link
+        <input id="pin-url" type="text" inputmode="url" maxlength="500" placeholder="https://contoh.com" autocomplete="off" autocapitalize="off" spellcheck="false" required>
+      </label>
+      <div class="pin-row">
+        <span id="pin-preview" class="pin-ic"></span>
+        <small id="pin-info">Ikon diambil otomatis dari situs (favicon Google) setelah link diisi.</small>
+      </div>
+      <details id="pin-lain">
+        <summary>Ikon sendiri (opsional)</summary>
+        <label>Emoji atau huruf
+          <input id="pin-ikon" type="text" maxlength="16" placeholder="mis. 🛒" autocomplete="off">
+        </label>
+        <small>Dipakai sebagai ganti favicon.</small>
+      </details>
+      <small id="pin-err" class="pin-err" role="alert"></small>
+      <menu>
+        <button type="button" id="pin-del" class="danger" hidden>Hapus</button>
+        <button type="button" id="pin-cancel">Batal</button>
+        <button type="submit" id="pin-ok" class="pri">Simpan</button>
+      </menu>
+    </form>
+  </dialog>
+
+  <dialog id="dlg-hapus">
+    <form method="dialog" id="form-hapus">
+      <h2>Hapus menu</h2>
+      <p id="hapus-teks" class="hapus-teks"></p>
+      <menu>
+        <button type="button" id="hapus-batal">Batal</button>
+        <button type="submit" id="hapus-ok" class="danger" value="ya">Hapus</button>
+      </menu>
+    </form>
+  </dialog>
+
+  <script src="script.js"></script>
+</body>
+</html>

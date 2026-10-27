@@ -1,0 +1,9 @@
+{
+  "petunjuk": "Edit file ini lewat GitHub (ikon pensil). Tiap menu: nama (boleh dikosongkan), link (wajib; https:// boleh dilewati), ikon (opsional: emoji atau huruf; kosong = favicon situs). Maksimal 48 menu, tanpa koma setelah item terakhir. Perubahan tampil di tab baru dalam beberapa menit, atau langsung lewat tombol Segarkan di Atur.",
+  "contoh": {
+    "nama": "Contoh",
+    "link": "https://contoh.com",
+    "ikon": ""
+  },
+  "menu": []
+}

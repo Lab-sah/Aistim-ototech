@@ -1,0 +1,46 @@
+name: Release
+
+# Setiap push ke main membuat/memperbarui release v<versi> dengan Ototech-Tab-<versi>.zip
+# (manifest.json di ROOT zip: ekstrak lalu "Load unpacked"). Naikkan "version" di extension/manifest.json untuk rilis baru.
+
+on:
+  push:
+    branches: [main]
+    paths-ignore:
+      - main.json # daftar menu bersama diedit lewat GitHub; tidak perlu rilis baru
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Periksa ID extension tetap
+        run: python3 tools/id-extension.py
+      - name: Build ZIP
+        run: |
+          node --check extension/script.js
+          VERSION=$(python3 -c "import json;print(json.load(open('extension/manifest.json'))['version'])")
+          echo "VERSION=$VERSION" >> "$GITHUB_ENV"
+          ZIP="Ototech-Tab-$VERSION.zip"
+          echo "ZIP=$ZIP" >> "$GITHUB_ENV"
+          (cd extension && zip -r "../$ZIP" .)
+          unzip -l "$ZIP" | grep -E ' manifest\.json$'
+      - name: Create release / upload asset
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          TAG="v$VERSION"
+          if gh release view "$TAG" >/dev/null 2>&1; then
+            gh release upload "$TAG" "$ZIP" --clobber
+          else
+            gh release create "$TAG" "$ZIP" --title "Ototech Tab v$VERSION" --notes "Unduh **$ZIP**, ekstrak, lalu Load unpacked. ID extension tetap (lihat README)." --latest \
+              || gh release upload "$TAG" "$ZIP" --clobber
+          fi
