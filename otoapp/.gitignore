@@ -1,0 +1,8 @@
+.gradle/
+build/
+app/build/
+local.properties
+.idea/
+*.iml
+# Salinan halaman web dari ../extension, dibuat otomatis oleh tugas syncWeb saat build
+app/src/main/assets/web/

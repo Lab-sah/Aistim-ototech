@@ -298,6 +298,15 @@ document.addEventListener("keydown", (e) => {
   else if (!$("grup").hidden) kembaliBeranda();
   else if (flipKartu.classList.contains("balik")) putar(false);
 });
+// Dipanggil aplikasi Android (otoapp) saat tombol Kembali ditekan; true = sudah ditangani di halaman ini.
+window.__otoBack = () => {
+  const dlg = document.querySelector("dialog[open]");
+  if (dlg) { dlg.close(); return true; }
+  if (!$("dw").hidden) { tutupDrawer(); return true; }
+  if (!$("grup").hidden) { kembaliBeranda(); return true; }
+  if (flipKartu.classList.contains("balik")) { putar(false); return true; }
+  return false;
+};
 
 // ---------- Tambah / ubah / hapus ----------
 const dlgPin = $("dlg-pin");
@@ -874,7 +883,16 @@ function pantau() {
     });
   }
 }
+// Di aplikasi Android (otoapp) user agent memuat "OtoApp/<versi aplikasi> Web/<versi halaman>"; tidak ada chrome.runtime di sana.
+const DALAM_APP = /OtoApp\//.test(navigator.userAgent);
 function labelVersi() {
+  const ua = /OtoApp\/(\S*)(?: Web\/(\S+))?/.exec(navigator.userAgent);
+  if (ua) {
+    const t = "Ototech App" + (ua[1] ? " v" + ua[1] : "") + (ua[2] ? " · halaman v" + ua[2] : "");
+    $("ver").textContent = t;
+    $("dw-foot").textContent = t;
+    return;
+  }
   try {
     const v = chrome.runtime.getManifest().version;
     $("ver").textContent = "Ototech Tab v" + v + (chrome.runtime.id ? " · ID extension: " + chrome.runtime.id : "");
@@ -902,7 +920,10 @@ async function mulai() {
   labelVersi();
   pantau();
   muatMenuBersama(false); // tidak ditunggu: halaman sudah tampil dengan salinan tersimpan
-  muatPembaruan();
-  muatFullscreen();
+  if (DALAM_APP) document.documentElement.classList.add("app"); // pembaruan dikelola aplikasi (dari GitHub), bukan zip extension
+  else {
+    muatPembaruan();
+    muatFullscreen();
+  }
 }
 mulai().catch((e) => msg("Gagal memuat menu: " + (e && e.message ? e.message : e)));

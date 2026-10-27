@@ -1,0 +1,72 @@
+name: OtoApp APK
+
+# Membangun otoapp/ menjadi OtoApp-<versi>.apk dan menaruhnya di release "otoapp-v<versi>" (ditandai prarilis dan bukan "latest",
+# supaya pemeriksaan pembaruan extension yang memakai releases/latest tidak terganggu). Jalankan juga manual lewat
+# Actions > OtoApp APK > Run workflow. Naikkan versionName di otoapp/app/build.gradle untuk rilis dengan nomor baru.
+# Halaman web di dalam APK diambil dari folder extension/ saat build; di perangkat, aplikasi memperbarui halamannya sendiri
+# dari GitHub, jadi perubahan di extension/ tidak perlu membangun APK baru.
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - otoapp/**
+      - .github/workflows/otoapp.yml
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: otoapp-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  apk:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: "8.9"
+
+      - name: Bangun APK (release, ditandatangani dengan otoapp/ototech.keystore)
+        run: |
+          set -o pipefail
+          gradle -p otoapp assembleRelease -PversionCode=${{ github.run_number }} --no-daemon --stacktrace 2>&1 | tee build.log
+
+      - name: Tampilkan galat build
+        if: failure()
+        run: |
+          # Potongan akhir log ditampilkan sebagai anotasi supaya bisa dibaca tanpa membuka log lengkap
+          MSG=$(tail -n 60 build.log | python3 -c "import sys;print(sys.stdin.read().replace('%','%25').replace('\r','').replace('\n','%0A'))")
+          echo "::error title=Galat build::$MSG"
+
+      - name: Siapkan berkas APK
+        run: |
+          VERSION=$(grep -oP "versionName '\K[^']+" otoapp/app/build.gradle)
+          APK="OtoApp-$VERSION.apk"
+          cp otoapp/app/build/outputs/apk/release/app-release.apk "$APK"
+          echo "VERSION=$VERSION" >> "$GITHUB_ENV"
+          echo "APK=$APK" >> "$GITHUB_ENV"
+          ls -l "$APK"
+
+      - name: Buat atau perbarui release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          TAG="otoapp-v$VERSION"
+          if gh release view "$TAG" >/dev/null 2>&1; then
+            gh release upload "$TAG" "$APK" --clobber
+          else
+            gh release create "$TAG" "$APK" --title "OtoApp v$VERSION" \
+              --notes "Unduh **$APK** dan pasang di Android (izinkan pemasangan dari sumber ini). Halaman di dalam aplikasi diperbarui otomatis dari GitHub." \
+              --prerelease --latest=false \
+              || gh release upload "$TAG" "$APK" --clobber
+          fi

@@ -40,6 +40,10 @@ Extension Chrome yang mengganti halaman **tab baru** dengan tampilan bergaya apl
 
 > **Catatan repo privat**: menu bersama dan pemeriksaan pembaruan membaca `raw.githubusercontent.com` dan `api.github.com` tanpa token. Selama repo ini **privat**, kedua permintaan itu dijawab 404, jadi `main.json` dianggap belum ada dan tidak ada pembaruan terdeteksi. Menu pribadi, jam, dan kata-kata tetap berfungsi penuh. Jadikan repo publik bila fitur itu dipakai.
 
+## Aplikasi Android (otoapp)
+
+Folder [`otoapp/`](otoapp) berisi kode sumber aplikasi Android (WebView) yang membuka halaman ini dari dalam aplikasi dan memperbarui halamannya dari GitHub. APK dibangun lewat GitHub Actions; lihat [otoapp/README.md](otoapp/README.md).
+
 ## ID tetap
 
 ID extension tidak berubah walau dipasang dari folder berbeda, karena `extension/manifest.json` memuat `key` (public key):
@@ -64,5 +68,6 @@ Menu pribadi tersimpan di browser (`chrome.storage.local`). Tidak ada akun dan t
 
 - `extension/`: `manifest.json`, `newtab.html`, `script.js`, `background.js`, `style.css`, `icons/`
 - `main.json`: daftar menu bersama
+- `otoapp/`: kode sumber aplikasi Android (WebView)
 - `tools/id-extension.py`: pemeriksa ID tetap
 - `.github/workflows/release.yml`: setiap push ke `main` membuat atau memperbarui release `v<versi>` dengan `Ototech-Tab-<versi>.zip` (naikkan `version` di `manifest.json` untuk rilis baru)

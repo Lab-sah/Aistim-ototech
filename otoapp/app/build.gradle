@@ -1,0 +1,56 @@
+plugins {
+    id 'com.android.application'
+}
+
+android {
+    namespace 'com.ototech.app'
+    compileSdk 34
+
+    defaultConfig {
+        applicationId 'com.ototech.app'
+        minSdk 24
+        targetSdk 34
+        // versionCode naik otomatis di GitHub Actions (-PversionCode=<nomor run>) supaya APK baru bisa menimpa yang lama
+        versionCode (project.findProperty('versionCode') ?: '1').toInteger()
+        versionName '1.0.0'
+    }
+
+    // Kunci tanda tangan tetap (otoapp/ototech.keystore) supaya APK dari build berbeda bisa saling menimpa saat dipasang.
+    // Kunci ini ikut di repo publik: cukup untuk pemakaian pribadi, jangan dipakai untuk distribusi luas (lihat README).
+    signingConfigs {
+        rilis {
+            storeFile rootProject.file('ototech.keystore')
+            storePassword 'ototech'
+            keyAlias 'ototech'
+            keyPassword 'ototech'
+        }
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            signingConfig signingConfigs.rilis
+        }
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+    }
+}
+
+dependencies {
+    implementation 'androidx.webkit:webkit:1.11.0'
+}
+
+// Halaman web aplikasi = folder ../extension di repo ini (satu sumber untuk extension dan aplikasi). Disalin ke assets/web
+// sebagai isi bawaan APK; aplikasi lalu memperbarui salinannya dari GitHub sendiri saat versi di sana lebih baru.
+tasks.register('syncWeb', Copy) {
+    from(rootProject.file('../extension')) {
+        exclude 'background.js' // hanya dipakai extension Chrome
+    }
+    into layout.projectDirectory.dir('src/main/assets/web')
+}
+tasks.named('preBuild') {
+    dependsOn 'syncWeb'
+}

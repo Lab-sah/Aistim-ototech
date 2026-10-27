@@ -1,0 +1,4 @@
+// Butuh Gradle 8.7+ dan JDK 17 (AGP 8.5.2). Di GitHub Actions dipakai Gradle 8.9 (lihat .github/workflows/otoapp.yml).
+plugins {
+    id 'com.android.application' version '8.5.2' apply false
+}
