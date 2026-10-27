@@ -11,8 +11,8 @@ android {
         minSdk 24
         targetSdk 34
         // versionCode naik otomatis di GitHub Actions (-PversionCode=<nomor run>) supaya APK baru bisa menimpa yang lama
-        versionCode (project.findProperty('versionCode') ?: '1').toInteger()
-        versionName '1.0.0'
+        versionCode = (project.findProperty('versionCode') ?: '1').toString().toInteger()
+        versionName = '1.0.0'
     }
 
     // Kunci tanda tangan tetap (otoapp/ototech.keystore) supaya APK dari build berbeda bisa saling menimpa saat dipasang.
