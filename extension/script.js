@@ -400,7 +400,7 @@ $("pin-del").addEventListener("click", async () => {
 // extension ini. Hanya dibaca dan divalidasi ketat (hanya link http/https, tampil sebagai teks biasa). Tidak ada tanda
 // tangan, jadi siapa pun yang boleh mengubah file itu di repo ikut menentukan menunya.
 const MENU_URL = "https://raw.githubusercontent.com/Lab-sah/Aistim-ototech/main/main.json";
-const MENU_JEDA = 5 * 60 * 1000; // GitHub menyimpan salinan file mentah sampai 5 menit
+const MENU_JEDA = 15 * 1000; // jeda minimal antar pemuatan otomatis; cukup agar beberapa tab yang dibuka berurutan tidak menembak GitHub berulang
 const MAX_V = 48;
 let pinsV = []; // menu bersama dari main.json: [{ id, nama, href, ikon }]
 let sumber = { t: 0, err: "", lewat: [], ada: true, memuat: false }; // keadaan pemuatan terakhir
@@ -473,8 +473,9 @@ function tampilSumber() {
   $("sumber-info").textContent = s;
   $("sumber-segar").disabled = sumber.memuat;
 }
-// Tanpa paksa: dilewati bila pemuatan terakhir berhasil kurang dari 5 menit lalu. Dengan paksa (tombol Segarkan) memakai
-// parameter acak supaya salinan 5 menit di GitHub terlewati dan hasil edit langsung terlihat.
+// Dibaca tiap tab baru dibuka (dan saat tab kembali terlihat), dilewati hanya bila pemuatan terakhir berhasil kurang dari
+// MENU_JEDA lalu. Selalu memakai parameter acak supaya salinan file mentah di GitHub (sampai 5 menit) terlewati dan hasil
+// edit langsung terlihat. Tombol Segarkan (paksa) mengabaikan jeda.
 async function muatMenuBersama(paksa) {
   if (sumber.memuat) return;
   if (!paksa && !sumber.err && sumber.t && Date.now() - sumber.t < MENU_JEDA) return;
@@ -483,7 +484,7 @@ async function muatMenuBersama(paksa) {
   const ctl = new AbortController();
   const batas = setTimeout(() => ctl.abort(), 10000);
   try {
-    const r = await fetch(MENU_URL + (paksa ? "?t=" + Date.now() : ""), { cache: "no-cache", signal: ctl.signal });
+    const r = await fetch(MENU_URL + "?t=" + Date.now(), { cache: "no-store", signal: ctl.signal });
     if (r.status === 404) {
       pinsV = [];
       sumber = { ...sumber, ada: false, err: "", lewat: [], t: Date.now() };
@@ -728,7 +729,7 @@ function tick() {
   clearTimeout(tick.t);
   tick.t = setTimeout(tick, 60000 - (now.getTime() % 60000) + 50);
 }
-document.addEventListener("visibilitychange", () => { if (!document.hidden) tick(); });
+document.addEventListener("visibilitychange", () => { if (!document.hidden) { tick(); muatMenuBersama(false); } });
 // Satu kata-kata per hari (hari menurut jam lokal), berganti tiap tengah malam
 function initQuote() {
   const d = new Date();
