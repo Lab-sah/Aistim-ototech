@@ -8,7 +8,8 @@ Extension Chrome yang mengganti halaman **tab baru** dengan tampilan bergaya apl
 - **Menu Favorit**: grid ikon bulat berwarna dengan nama di bawahnya. Ketuk tile **+** untuk menambah menu: isi **Link** (dan **Nama** bila mau; kosong berarti nama situsnya), lalu Simpan. Link tanpa `https://` dilengkapi otomatis; hanya `http`/`https` yang diterima. Maksimal 24 menu pribadi.
 - **Cari**: kolom di atas menyaring semua menu, termasuk submenu grup (nama grup ikut dicocokkan). Enter membuka hasil pertama, panah bawah pindah ke daftar hasil, Escape mengosongkan.
 - **Terakhir**: chip di bawah grid (dapat digeser) berisi menu yang terakhir dibuka (maksimal 6), dibuka dari grid, pencarian, atau menu samping.
-- **Menu samping** (ikon ☰ di kiri atas): semua menu dalam satu daftar, dengan **Beranda** di atas. Grup dari `main.json` bisa dibuka untuk menampilkan submenunya; menu pribadi ada di bagian **Menu saya**. Escape atau ketuk bagian gelap untuk menutup.
+- **Menu samping** (ikon ☰ di kiri atas): semua menu dalam satu daftar, dengan **Beranda** di atas. Grup dari `main.json` membuka halamannya sendiri; menu pribadi ada di bagian **Menu saya**. Escape atau ketuk bagian gelap untuk menutup.
+- **Halaman per grup**: ketuk grup (mis. Logistik) di grid atau menu samping untuk membuka halaman sendiri (`#/grup/<id>`) berisi judul dan grid submenunya, dengan tombol kembali (juga Escape dan tombol Kembali peramban). Beranda hanya memuat menu utama. Pencarian tetap mencari sampai ke submenu.
 - **Menu bersama dari `main.json`**: menu juga diambil dari file [`main.json`](main.json) di repo ini. Menu bersama tampil lebih dulu, lalu menu pribadi. Di sisi belakang kartu (**Atur**) menu bersama diberi lencana `main.json` dan ada tombol **Segarkan**.
 
   ```json
@@ -29,7 +30,7 @@ Extension Chrome yang mengganti halaman **tab baru** dengan tampilan bergaya apl
   }
   ```
 
-  - **Menu biasa**: `link` wajib; `nama` dan `ikon` opsional. **Grup**: `nama` wajib, `anak` berisi menu biasa (maksimal 24 per grup); grup tampil di grid sebagai tile yang membuka menu samping dengan grup itu terbuka. `"favorit": false` menyembunyikan menu atau grup dari grid sehingga hanya ada di menu samping. Maksimal 48 menu. Entri yang salah dilewati dan alasannya ditulis di status; file yang bukan JSON sah ditolak seluruhnya dan tab memakai salinan terakhir yang berhasil.
+  - **Menu biasa**: `link` wajib; `nama` dan `ikon` opsional. **Grup**: `nama` wajib, `anak` berisi menu biasa (maksimal 24 per grup); grup tampil di grid sebagai tile yang membuka halaman grup itu. `"favorit": false` menyembunyikan menu atau grup dari grid sehingga hanya ada di menu samping. Maksimal 48 menu. Entri yang salah dilewati dan alasannya ditulis di status; file yang bukan JSON sah ditolak seluruhnya dan tab memakai salinan terakhir yang berhasil.
   - **Keamanan**: file ini tidak ditandatangani, jadi siapa pun yang bisa mengubah `main.json` menentukan menu semua pengguna. Isinya divalidasi ketat dan tidak pernah dijalankan sebagai kode. Jaga akses tulis ke repo ini.
 - **Ubah dan hapus** ada di sisi belakang kartu: ketuk **Atur**, lalu **Ubah** atau **Hapus** per baris.
 - **Ikon otomatis** dari favicon situs lewat Google (hanya domain induk yang dikirim). Bisa diganti emoji atau huruf lewat **Ikon sendiri**.

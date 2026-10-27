@@ -12,6 +12,9 @@
     <button id="btn-drawer" class="ab-btn" type="button" aria-label="Buka menu samping" aria-controls="dw" aria-expanded="false">
       <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
     </button>
+    <button id="btn-kembali" class="ab-btn" type="button" aria-label="Kembali ke beranda" hidden>
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg>
+    </button>
     <span class="brand">Ototech</span>
     <span class="ab-sp" aria-hidden="true"></span>
   </header>
@@ -25,7 +28,18 @@
     </nav>
   </div>
 
-  <main class="halaman">
+  <!-- Halaman grup (#/grup/<id>): submenu satu grup dari main.json -->
+  <main id="grup" class="halaman" hidden>
+    <header class="grup-head">
+      <h1 id="grup-judul" tabindex="-1"></h1>
+      <p id="grup-sub"></p>
+    </header>
+    <section class="kartu" aria-labelledby="grup-judul">
+      <div id="grup-grid" class="pin-grid face-body"></div>
+    </section>
+  </main>
+
+  <main id="home" class="halaman">
     <!-- Muncul hanya bila ada versi yang lebih baru di GitHub -->
     <a id="upd-pill" class="upd-pill" href="#" target="_blank" rel="noopener noreferrer" hidden><span aria-hidden="true">⬆</span><span id="upd-pill-teks"></span></a>
 

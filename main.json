@@ -1,5 +1,5 @@
 {
-  "petunjuk": "Edit file ini lewat GitHub (ikon pensil) lalu Commit; hasilnya tampil di tab baru berikutnya (atau tombol Segarkan di Atur). Menu biasa: nama (boleh kosong), link (wajib; https:// boleh dilewati), ikon (opsional: emoji atau huruf; kosong = favicon situs). Grup: nama (wajib), ikon (opsional), anak (daftar menu biasa); grup tampil di menu samping (ikon garis tiga) sebagai daftar yang bisa dibuka. \"favorit\": false menyembunyikan menu dari grid Menu Favorit sehingga hanya ada di menu samping. Maksimal 48 menu, 24 anak per grup, tanpa koma setelah item terakhir.",
+  "petunjuk": "Edit file ini lewat GitHub (ikon pensil) lalu Commit; hasilnya tampil di tab baru berikutnya (atau tombol Segarkan di Atur). Menu biasa: nama (boleh kosong), link (wajib; https:// boleh dilewati), ikon (opsional: emoji atau huruf; kosong = favicon situs). Grup: nama (wajib), ikon (opsional), anak (daftar menu biasa); grup tampil sebagai tile di beranda dan di menu samping (ikon garis tiga), dan membuka halaman sendiri berisi submenunya. \"favorit\": false menyembunyikan menu dari grid Menu Favorit sehingga hanya ada di menu samping. Maksimal 48 menu, 24 anak per grup, tanpa koma setelah item terakhir.",
   "contoh": {
     "nama": "Contoh",
     "link": "https://contoh.com",

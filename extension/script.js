@@ -182,14 +182,13 @@ function pinTile(p) {
   const nm = document.createElement("span");
   nm.className = "pin-nm";
   nm.textContent = pinLabel(p);
-  if (p.anak) { // grup dari main.json: membuka menu samping dengan grup itu terbuka
-    const b = document.createElement("button");
-    b.type = "button";
-    b.className = "pin";
-    b.title = pinLabel(p) + " · " + p.anak.length + " submenu";
-    b.append(pinIkon(p), nm);
-    b.addEventListener("click", () => bukaDrawer(p.id));
-    return b;
+  if (p.anak) { // grup dari main.json: membuka halaman sendiri berisi submenunya (#/grup/<id>)
+    const a = document.createElement("a");
+    a.className = "pin";
+    a.href = "#/grup/" + p.id;
+    a.title = pinLabel(p) + " · " + p.anak.length + " submenu";
+    a.append(pinIkon(p), nm);
+    return a;
   }
   const a = tautan(document.createElement("a"), p);
   a.className = "pin";
@@ -266,6 +265,7 @@ function renderPins() {
   renderDrawer();
   renderTerakhir();
   renderCari();
+  renderRute();
 }
 
 // Kartu berbalik: depan = menu untuk dibuka, belakang = atur (tambah, ubah, hapus)
@@ -295,6 +295,7 @@ $("pin-tambah").addEventListener("click", () => openPin(null));
 document.addEventListener("keydown", (e) => {
   if (e.key !== "Escape" || document.querySelector("dialog[open]")) return;
   if (!$("dw").hidden) tutupDrawer();
+  else if (!$("grup").hidden) kembaliBeranda();
   else if (flipKartu.classList.contains("balik")) putar(false);
 });
 
@@ -613,9 +614,8 @@ inCari.addEventListener("keydown", (e) => {
 });
 
 // ---------- Menu samping ----------
-// Semua menu dalam satu daftar: menu bersama (grup bisa dibuka; anak menu baru dibuat saat grup dibuka), lalu menu pribadi.
+// Semua menu dalam satu daftar: menu bersama (grup membuka halamannya sendiri), lalu menu pribadi.
 const dw = $("dw");
-const grupBuka = new Set(); // id grup yang sedang terbuka
 let dwT = 0;
 function drawerLink(p) {
   const li = document.createElement("li");
@@ -629,30 +629,18 @@ function drawerLink(p) {
   li.append(a);
   return li;
 }
-function drawerGrup(p) {
+function drawerGrup(p) { // grup membuka halamannya sendiri
   const li = document.createElement("li");
-  const b = document.createElement("button");
-  b.type = "button";
-  b.className = "dw-row";
+  const a = document.createElement("a");
+  a.className = "dw-row";
+  a.href = "#/grup/" + p.id;
   const nm = document.createElement("span");
   nm.className = "dw-nm";
   nm.textContent = pinLabel(p);
-  b.append(pinIkon(p), nm);
-  b.insertAdjacentHTML("beforeend", IKON_PANAH);
-  const ul = document.createElement("ul");
-  ul.className = "dw-anak";
-  ul.id = "dw-" + p.id;
-  b.setAttribute("aria-controls", ul.id);
-  const atur = (buka) => {
-    b.setAttribute("aria-expanded", String(buka));
-    ul.hidden = !buka;
-    if (buka && !ul.firstChild) p.anak.forEach((a) => ul.append(drawerLink(a)));
-    if (buka) grupBuka.add(p.id);
-    else grupBuka.delete(p.id);
-  };
-  b.addEventListener("click", () => atur(b.getAttribute("aria-expanded") !== "true"));
-  atur(grupBuka.has(p.id));
-  li.append(b, ul);
+  a.append(pinIkon(p), nm);
+  a.insertAdjacentHTML("beforeend", IKON_PANAH);
+  a.addEventListener("click", () => setTimeout(tutupDrawer, 0));
+  li.append(a);
   return li;
 }
 function renderDrawer() {
@@ -676,26 +664,22 @@ function renderDrawer() {
     pins.forEach((p) => l.append(drawerLink(p)));
   }
 }
-function bukaDrawer(idGrup) {
+function bukaDrawer() {
   clearTimeout(dwT);
-  if (idGrup) {
-    grupBuka.add(idGrup);
-    renderDrawer();
-  }
   dw.hidden = false;
   void dw.offsetWidth; // memulai transisi dari posisi tertutup
   dw.classList.add("buka");
-  document.querySelector("main").inert = true; // fokus dan ketukan tidak menembus ke halaman di belakang
+  document.querySelectorAll("main").forEach((m) => (m.inert = true)); // fokus dan ketukan tidak menembus ke halaman di belakang
   const tb = $("btn-drawer");
   tb.setAttribute("aria-expanded", "true");
   tb.setAttribute("aria-label", "Tutup menu samping");
-  const f = idGrup ? $("dw-list").querySelector('[aria-controls="dw-' + idGrup + '"]') : $("dw-list").querySelector(".dw-row");
+  const f = $("dw-list").querySelector(".dw-row");
   if (f) f.focus({ preventScroll: true });
 }
 function tutupDrawer() {
   if (dw.hidden) return;
   dw.classList.remove("buka");
-  document.querySelector("main").inert = false;
+  document.querySelectorAll("main").forEach((m) => (m.inert = false));
   const tb = $("btn-drawer");
   tb.setAttribute("aria-expanded", "false");
   tb.setAttribute("aria-label", "Buka menu samping");
@@ -705,6 +689,49 @@ function tutupDrawer() {
 }
 $("btn-drawer").addEventListener("click", () => (dw.classList.contains("buka") ? tutupDrawer() : bukaDrawer()));
 $("dw-scrim").addEventListener("click", tutupDrawer);
+
+// ---------- Halaman grup ----------
+// Grup dari main.json punya halaman sendiri di alamat #/grup/<id> (grid submenu, judul, tombol kembali). Tombol Kembali
+// peramban juga berfungsi. Id grup berasal dari namanya, jadi tetap sama selama nama grup tidak diubah.
+let navApp = false; // sudah pernah berpindah halaman di sini: Kembali memakai riwayat peramban
+function grupAktif() {
+  const m = /^#\/grup\/(g[a-z0-9]+)$/.exec(location.hash);
+  return m ? { id: m[1], g: pinsV.find((p) => p.anak && p.id === m[1]) || null } : null;
+}
+let grupTampil = "";
+function renderRute() {
+  const r = grupAktif();
+  const g = r && r.g;
+  if (r && !g && sumber.t && !sumber.memuat) history.replaceState(null, "", location.pathname + location.search); // grupnya sudah tidak ada
+  $("home").hidden = !!g;
+  $("grup").hidden = !g;
+  $("btn-drawer").hidden = !!g;
+  $("btn-kembali").hidden = !g;
+  document.title = g ? pinLabel(g) + " · Ototech" : "Ototech Tab";
+  if (!g) { grupTampil = ""; return; }
+  $("grup-judul").textContent = pinLabel(g);
+  $("grup-sub").textContent = g.anak.length + " submenu";
+  const grid = $("grup-grid");
+  grid.textContent = "";
+  g.anak.forEach((a) => grid.append(pinTile(a)));
+  if (grupTampil !== g.id) { // baru berpindah ke grup ini: ke atas dan fokus ke judul
+    grupTampil = g.id;
+    window.scrollTo(0, 0);
+    $("grup-judul").focus({ preventScroll: true });
+  }
+}
+function kembaliBeranda() {
+  if (navApp) history.back();
+  else {
+    history.replaceState(null, "", location.pathname + location.search);
+    renderRute();
+  }
+}
+$("btn-kembali").addEventListener("click", kembaliBeranda);
+window.addEventListener("hashchange", () => {
+  navApp = true;
+  renderRute();
+});
 
 // ---------- Jam dan kata-kata ----------
 const QUOTES = [

@@ -45,8 +45,14 @@ body {
   gap: 14px;
   padding: 16px 16px 28px;
 }
+.halaman[hidden], .ab-btn[hidden] { display: none; }
 .halaman > *, .pins { width: 100%; max-width: 460px; }
-.pins { --ic: 56px; }
+.pins, #grup { --ic: 56px; }
+
+/* Halaman grup */
+.grup-head { margin: 4px 4px 0; }
+.grup-head h1 { margin: 0; font-size: 26px; font-weight: 800; letter-spacing: -0.01em; outline: none; }
+.grup-head p { margin: 4px 0 0; font-size: 14px; color: var(--redup); }
 
 .salam { margin: 4px 4px 0; font-size: 15px; color: var(--redup); }
 .salam:empty { display: none; }
@@ -215,9 +221,6 @@ body {
 .dw-row .dw-ik svg { width: 24px; height: 24px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
 .dw-nm { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .dw-cv { flex: none; width: 20px; height: 20px; fill: none; stroke: var(--redup); stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; transition: transform 0.2s ease; }
-.dw-row[aria-expanded="true"] .dw-cv { transform: rotate(90deg); }
-.dw-anak .dw-row { min-height: 42px; font-size: 15px; font-weight: 400; }
-.dw-anak .pin-ic { --ic: 28px; font-size: 14px; }
 .dw-judul { margin: 12px 12px 4px; font-size: 12px; font-weight: 600; letter-spacing: 0.04em; text-transform: uppercase; color: var(--redup); }
 .dw-foot { padding: 12px 20px; border-top: 1px solid var(--garis); font-size: 12px; color: var(--redup); overflow-wrap: anywhere; }
 
