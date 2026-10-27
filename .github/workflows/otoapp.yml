@@ -52,7 +52,7 @@ jobs:
 
       - name: Siapkan berkas APK
         run: |
-          VERSION=$(grep -oP "versionName '\K[^']+" otoapp/app/build.gradle)
+          VERSION=$(grep -oP "versionName\s*=?\s*'\K[^']+" otoapp/app/build.gradle)
           APK="OtoApp-$VERSION.apk"
           cp otoapp/app/build/outputs/apk/release/app-release.apk "$APK"
           echo "VERSION=$VERSION" >> "$GITHUB_ENV"
