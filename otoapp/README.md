@@ -13,7 +13,10 @@ Aplikasi Android (WebView) yang membuka halaman **Ototech Tab** dari dalam aplik
 
 ## Membangun APK
 
-Lewat GitHub Actions saja: workflow [`otoapp.yml`](../.github/workflows/otoapp.yml) berjalan otomatis setiap push ke `main` yang menyentuh `otoapp/`, atau manual di **Actions > OtoApp APK > Run workflow**. Hasilnya `OtoApp-<versi>.apk` di Releases pada tag `otoapp-v<versi>` (prarilis, bukan "latest", supaya pemeriksaan pembaruan extension tidak terganggu).
+Lewat GitHub Actions saja: workflow [`otoapp.yml`](../.github/workflows/otoapp.yml) berjalan otomatis setiap push ke `main` yang menyentuh `otoapp/`, atau manual di **Actions > OtoApp APK > Run workflow**. Hasilnya dua tempat:
+
+- **Cabang `otoapp`**: `OtoApp.apk` terbaru, unduh langsung di https://github.com/Lab-sah/Aistim-ototech/raw/otoapp/OtoApp.apk. Cabang ini hanya berisi APK dan README, dibuat ulang sebagai satu commit setiap build (push paksa), jadi riwayat tidak membengkak.
+- **Releases**, tag `otoapp-v<versi>`: `OtoApp-<versi>.apk` (prarilis, bukan "latest", supaya pemeriksaan pembaruan extension tidak terganggu).
 
 Pasang: unduh APK di HP, izinkan pemasangan dari sumber itu, lalu buka. Untuk menaikkan nomor aplikasi, ubah `versionName` di `app/build.gradle` (`versionCode` naik sendiri dari nomor run).
 

@@ -2,7 +2,7 @@ name: OtoApp APK
 
 # Membangun otoapp/ menjadi OtoApp-<versi>.apk dan menaruhnya di release "otoapp-v<versi>" (ditandai prarilis dan bukan "latest",
 # supaya pemeriksaan pembaruan extension yang memakai releases/latest tidak terganggu). Jalankan juga manual lewat
-# Actions > OtoApp APK > Run workflow. Naikkan versionName di otoapp/app/build.gradle untuk rilis dengan nomor baru.
+# Actions > OtoApp APK > Run workflow. APK juga ditaruh di cabang "otoapp" (OtoApp.apk) untuk unduhan langsung. Naikkan versionName di otoapp/app/build.gradle untuk rilis dengan nomor baru.
 # Halaman web di dalam APK diambil dari folder extension/ saat build; di perangkat, aplikasi memperbarui halamannya sendiri
 # dari GitHub, jadi perubahan di extension/ tidak perlu membangun APK baru.
 
@@ -72,3 +72,31 @@ jobs:
               --prerelease --latest=false \
               || gh release upload "$TAG" "$APK" --clobber
           fi
+
+      # Cabang "otoapp" hanya berisi APK terbaru (OtoApp.apk) dan README singkat. Dibuat ulang sebagai satu commit setiap build
+      # (push paksa), jadi riwayat repo tidak membengkak oleh berkas biner. Link unduh tetap:
+      # https://github.com/<pemilik>/<repo>/raw/otoapp/OtoApp.apk
+      - name: Taruh APK di cabang otoapp
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          D="$RUNNER_TEMP/cabang-otoapp"
+          rm -rf "$D" && mkdir -p "$D"
+          cp "$APK" "$D/OtoApp.apk"
+          {
+            echo "# OtoApp"
+            echo
+            echo "APK terbaru: **OtoApp.apk** (v$VERSION, build #${{ github.run_number }})."
+            echo
+            echo "Unduh langsung: https://github.com/${{ github.repository }}/raw/otoapp/OtoApp.apk"
+            echo
+            echo "Kode sumber ada di folder otoapp/ cabang main."
+          } > "$D/README.md"
+          cd "$D"
+          git init -q -b otoapp
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git commit -q -m "OtoApp v$VERSION (build #${{ github.run_number }})"
+          git remote add origin "https://x-access-token:${GH_TOKEN}@github.com/${{ github.repository }}.git"
+          git push -f origin otoapp
