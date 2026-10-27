@@ -1,33 +1,84 @@
 * { box-sizing: border-box; }
 
+:root {
+  --merah: #e4002b;
+  --merah-tua: #c40025;
+  --merah-pucat: #fdecef;
+  --teks: #1f2430;
+  --redup: #6b7280;
+  --garis: #eceef2;
+  --latar: #f4f5f7;
+  --ab: 56px; /* tinggi bilah atas */
+}
+
 body {
   margin: 0;
   min-height: 100vh;
-  font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
-  color: #fff;
-  background: linear-gradient(160deg, #0a4a57 0%, #0b6672 48%, #08505b 100%);
-  background-attachment: fixed;
+  font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  color: var(--teks);
+  background: var(--latar);
 }
 
+/* Bilah atas */
+.appbar {
+  position: sticky;
+  top: 0;
+  z-index: 60;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: var(--ab);
+  padding: 0 12px;
+  background: #fff;
+  border-bottom: 1px solid var(--garis);
+}
+.ab-btn, .ab-sp { flex: none; width: 44px; height: 44px; }
+.ab-btn { display: grid; place-items: center; border: 0; border-radius: 12px; background: none; color: var(--teks); cursor: pointer; }
+.ab-btn:hover { background: var(--latar); }
+.ab-btn svg { width: 26px; height: 26px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; }
+.brand { font-size: 24px; font-weight: 800; letter-spacing: -0.02em; color: var(--merah); }
+
 .halaman {
-  min-height: 100vh;
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 14px;
-  padding: clamp(16px, 5vh, 56px) 16px 24px;
+  padding: 16px 16px 28px;
 }
+.halaman > *, .pins { width: 100%; max-width: 460px; }
+.pins { --ic: 56px; }
 
-.jam, .pins { width: 100%; max-width: 460px; }
-.pins { --ic: 44px; }
+.salam { margin: 4px 4px 0; font-size: 15px; color: var(--redup); }
+.salam:empty { display: none; }
 
-/* Kartu atas: jam dan kata-kata */
-.jam { padding: 18px 20px 20px; border-radius: 20px; background: rgba(0, 0, 0, 0.35); text-align: center; }
-.clock { font-size: clamp(52px, 17vw, 72px); font-weight: 300; line-height: 1.05; font-variant-numeric: tabular-nums; }
-.date { margin-top: 4px; font-size: 15px; opacity: 0.85; }
-.quote { margin: 16px 0 0; padding-top: 14px; border-top: 1px solid rgba(255, 255, 255, 0.14); }
+/* Kolom cari */
+.cari { display: flex; align-items: center; gap: 12px; height: 52px; padding: 0 16px; border-radius: 14px; background: #eceef2; color: var(--redup); }
+.cari:focus-within { outline: 2px solid var(--merah); outline-offset: 0; background: #fff; }
+.cari svg { flex: none; width: 24px; height: 24px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; }
+.cari input { flex: 1; min-width: 0; height: 100%; padding: 0; border: 0; outline: 0; background: none; color: var(--teks); font: inherit; font-size: 16px; }
+.cari input::placeholder { color: var(--redup); opacity: 1; }
+.cari input::-webkit-search-cancel-button { cursor: pointer; }
+
+.kartu, .face { background: #fff; border: 1px solid var(--garis); border-radius: 18px; box-shadow: 0 1px 3px rgba(16, 24, 40, 0.05); }
+.hasil { padding: 6px; }
+.hasil[hidden], .pins-kosong[hidden], .pin-list[hidden] { display: none; }
+.hasil-list { margin: 0; padding: 0; list-style: none; max-height: 60vh; overflow-y: auto; overscroll-behavior: contain; }
+.hasil-list a { display: flex; align-items: center; gap: 12px; padding: 8px; border-radius: 12px; color: inherit; text-decoration: none; }
+.hasil-list a:hover, .hasil-list a:focus-visible { background: var(--latar); }
+.hasil-list .pin-ic { --ic: 40px; font-size: 18px; }
+.hasil-t { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.hasil-t b { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 15px; font-weight: 600; }
+.hasil-t small { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 12px; color: var(--redup); }
+
+/* Kartu atas: jam dan kata-kata (merah, seperti kartu ringkasan di aplikasi) */
+.jam { position: relative; overflow: hidden; padding: 20px 22px 22px; border-radius: 22px; background: linear-gradient(135deg, #ee1238 0%, var(--merah-tua) 100%); color: #fff; text-align: center; box-shadow: 0 4px 14px rgba(228, 0, 43, 0.25); }
+.jam::before { content: ""; position: absolute; right: -90px; top: -110px; width: 280px; height: 280px; border-radius: 50%; background: rgba(255, 255, 255, 0.07); pointer-events: none; }
+.jam > * { position: relative; }
+.clock { font-size: clamp(52px, 17vw, 72px); font-weight: 600; line-height: 1.05; letter-spacing: -0.02em; font-variant-numeric: tabular-nums; }
+.date { margin-top: 4px; font-size: 15px; opacity: 0.9; }
+.quote { margin: 16px 0 0; padding-top: 14px; border-top: 1px solid rgba(255, 255, 255, 0.25); }
 .quote blockquote { margin: 0; font-size: 16px; font-style: italic; line-height: 1.45; }
-.quote figcaption { margin-top: 6px; font-size: 13px; opacity: 0.7; }
+.quote figcaption { margin-top: 6px; font-size: 13px; opacity: 0.8; }
 
 /* Kartu berbalik: depan = menu, belakang = atur. Kedua sisi menempati sel grid yang sama; tinggi kartu (--h, diatur script.js)
    mengikuti sisi yang sedang tampil, jadi sisi depan tidak ikut setinggi sisi belakang yang lebih panjang. */
@@ -38,9 +89,7 @@ body {
   grid-area: 1 / 1;
   align-self: start;
   min-width: 0;
-  padding: clamp(14px, 4vw, 20px);
-  border-radius: 20px;
-  background: rgba(0, 0, 0, 0.35);
+  overflow: hidden;
   backface-visibility: hidden;
   -webkit-backface-visibility: hidden;
   transition: visibility 0s linear 0.3s; /* sisi yang tertutup disembunyikan setelah setengah putaran: tidak bisa difokus atau diketuk */
@@ -48,112 +97,150 @@ body {
 .face.belakang { display: flex; flex-direction: column; transform: rotateY(180deg); visibility: hidden; }
 .flip.balik .belakang { visibility: visible; transition-delay: 0s; }
 .flip.balik .depan { visibility: hidden; }
+.face-body { padding: 16px 14px 14px; }
 
-.pins-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 12px; min-height: 34px; }
-.pins-head h2 { margin: 0; font-size: 16px; }
-.pins-btn { min-height: 32px; padding: 5px 14px; border: 1px solid rgba(255, 255, 255, 0.35); border-radius: 999px; background: none; color: #fff; font: inherit; font-size: 13px; cursor: pointer; }
-.pins-btn:hover { background: rgba(255, 255, 255, 0.15); }
-.pins-btn.pri { background: #2563eb; border-color: #2563eb; }
-.pins-btn.pri:hover { background: #1d4ed8; }
-.pins-kosong { margin: 0 0 10px; padding: 8px 0; text-align: center; font-size: 14px; opacity: 0.75; }
-.pins-kosong[hidden], .pin-list[hidden] { display: none; }
+.pins-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; min-height: 54px; padding: 0 18px; border-bottom: 1px solid var(--garis); }
+.pins-head h2 { margin: 0; font-size: 18px; font-weight: 700; }
+.link-btn { display: inline-flex; align-items: center; gap: 2px; min-height: 36px; padding: 0 2px; border: 0; background: none; color: var(--merah); font: inherit; font-size: 15px; font-weight: 600; cursor: pointer; }
+.link-btn:hover { color: var(--merah-tua); }
+.link-btn svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; }
 
-/* Sisi depan: tile menu + tile "Tambahkan baru" */
-.pin-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(84px, 1fr)); gap: 14px 8px; }
+.pins-btn { min-height: 32px; padding: 5px 14px; border: 1px solid #d9dde4; border-radius: 999px; background: #fff; color: #374151; font: inherit; font-size: 13px; cursor: pointer; }
+.pins-btn:hover { background: var(--latar); }
+.pins-btn.pri { background: var(--merah); border-color: var(--merah); color: #fff; }
+.pins-btn.pri:hover { background: var(--merah-tua); }
+.pins-kosong { margin: 0 0 10px; padding: 8px 0; text-align: center; font-size: 14px; color: var(--redup); }
+
+/* Sisi depan: tile menu bulat berwarna + tile "+" */
+.pin-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 18px 4px; }
 .pin {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 6px;
+  gap: 8px;
   min-width: 0;
-  padding: 6px 2px;
+  padding: 4px 2px;
   border: 0;
-  border-radius: 10px;
+  border-radius: 12px;
   background: none;
-  color: #fff;
+  color: var(--teks);
   font: inherit;
   text-align: center;
   text-decoration: none;
   cursor: pointer;
 }
-.pin:hover { background: rgba(255, 255, 255, 0.1); }
+.pin:hover { background: var(--latar); }
 .pin-ic {
+  --hue: 0;
   display: grid;
   place-items: center;
   flex: none;
   width: var(--ic, 56px);
   height: var(--ic, 56px);
+  border: 1px solid hsl(var(--hue) 60% 86%);
   border-radius: 50%;
   overflow: hidden;
-  background: rgba(255, 255, 255, 0.15);
-  font-size: 20px;
-  font-weight: 500;
+  background: hsl(var(--hue) 85% 95%);
+  color: hsl(var(--hue) 55% 38%);
+  font-size: 22px;
+  font-weight: 600;
   line-height: 1;
 }
 .pin-ic img { display: block; width: 100%; height: 100%; object-fit: cover; }
-.pin-ic.fav { background: rgba(255, 255, 255, 0.92); }
-.pin-ic.fav img { width: 58%; height: 58%; object-fit: contain; }
-/* Tile "+": ukuran dan warna sama dengan tile tambah di halaman tab baru Brave (lingkaran 44px, + tipis 21px, tanpa teks) */
-.pin.tambah { padding-top: 6px; }
+.pin-ic.fav { background: #fff; border-color: var(--garis); }
+.pin-ic.fav img { width: 54%; height: 54%; object-fit: contain; }
 .pin.tambah:hover { background: none; }
 .pin.tambah:hover .pin-ic { filter: brightness(0.94); }
-.pin-ic.plus { background: #ededf7; color: #43464d; }
+.pin-ic.plus { background: #ededf7; border-color: #ededf7; color: #43464d; }
 .pin-ic.plus svg { display: block; width: 100%; height: 100%; fill: none; stroke: currentColor; stroke-width: 1.35; }
-.pin-nm { max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 13px; opacity: 0.92; }
+.pin-nm { display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; max-width: 100%; overflow: hidden; overflow-wrap: anywhere; font-size: 14px; line-height: 1.3; }
+
+/* Terakhir dibuka: deretan chip yang bisa digeser */
+.terakhir { display: flex; gap: 8px; padding: 2px 14px 16px; overflow-x: auto; scrollbar-width: none; overscroll-behavior-x: contain; }
+.terakhir::-webkit-scrollbar { display: none; }
+.terakhir[hidden] { display: none; }
+.chip { flex: none; display: inline-flex; align-items: center; gap: 8px; min-height: 42px; padding: 0 16px; border: 1px solid #e3e6ec; border-radius: 999px; background: #fff; color: var(--teks); font-size: 14px; text-decoration: none; white-space: nowrap; }
+.chip:hover { background: var(--latar); }
+.chip svg { width: 18px; height: 18px; fill: none; stroke: var(--redup); stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
 
 /* Sisi belakang: daftar dengan Ubah dan Hapus */
 .pin-list { flex: 1; display: flex; flex-direction: column; gap: 6px; max-height: clamp(180px, 38vh, 300px); margin: 0 0 12px; padding: 0 2px 0 0; overflow-y: auto; overscroll-behavior: contain; list-style: none; }
-.baris { min-width: 0; display: flex; align-items: center; gap: 10px; padding: 6px; border-radius: 10px; background: rgba(255, 255, 255, 0.07); }
+.baris { min-width: 0; display: flex; align-items: center; gap: 10px; padding: 6px; border-radius: 12px; background: var(--latar); }
 .baris .pin-ic { --ic: 40px; font-size: 19px; }
 .baris-t { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
-.baris-t b { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 14px; font-weight: 500; }
-.baris-t small { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 12px; opacity: 0.65; }
-.ico2 { flex: none; display: grid; place-items: center; width: 40px; height: 40px; border: 0; border-radius: 50%; background: none; color: #fff; cursor: pointer; opacity: 0.8; }
+.baris-t b { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 14px; font-weight: 600; }
+.baris-t small { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 12px; color: var(--redup); }
+.ico2 { flex: none; display: grid; place-items: center; width: 40px; height: 40px; border: 0; border-radius: 50%; background: none; color: #4b5563; cursor: pointer; }
 .ico2 svg { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
-.ico2:hover { background: rgba(255, 255, 255, 0.15); opacity: 1; }
-.ico2.hapus:hover { background: rgba(185, 28, 28, 0.6); }
-.baris-lencana { flex: none; padding: 3px 8px; border-radius: 999px; background: rgba(255, 255, 255, 0.12); font-size: 11px; opacity: 0.85; }
+.ico2:hover { background: #e5e7eb; }
+.ico2.hapus:hover { background: var(--merah-pucat); color: var(--merah); }
+.baris-lencana { flex: none; padding: 3px 8px; border-radius: 999px; background: #e5e7eb; color: #4b5563; font-size: 11px; }
 .sumber { display: flex; align-items: center; gap: 8px; margin: 0 0 10px; }
-.sumber small { flex: 1; min-width: 0; font-size: 12px; line-height: 1.35; opacity: 0.75; overflow-wrap: anywhere; }
+.sumber small { flex: 1; min-width: 0; font-size: 12px; line-height: 1.35; color: var(--redup); overflow-wrap: anywhere; }
 .sumber .pins-btn { flex: none; min-height: 28px; padding: 3px 12px; font-size: 12px; }
 .sumber .pins-btn:disabled { opacity: 0.5; cursor: default; }
-.pin-tambah { width: 100%; padding: 11px; border: 2px dashed rgba(255, 255, 255, 0.4); border-radius: 10px; background: none; color: #fff; font: inherit; font-size: 14px; cursor: pointer; }
-.pin-tambah:hover:not(:disabled) { background: rgba(255, 255, 255, 0.1); }
+.pin-tambah { width: 100%; padding: 11px; border: 2px dashed #d1d5db; border-radius: 12px; background: none; color: var(--teks); font: inherit; font-size: 14px; cursor: pointer; }
+.pin-tambah:hover:not(:disabled) { background: var(--latar); }
 .pin-tambah:disabled { opacity: 0.5; cursor: not-allowed; }
-.ver { display: block; margin-top: 10px; font-size: 11px; opacity: 0.55; overflow-wrap: anywhere; }
+.ver { display: block; margin-top: 10px; font-size: 11px; color: var(--redup); overflow-wrap: anywhere; }
 
 /* Pembaruan */
-.upd-pill { display: flex; align-items: center; justify-content: center; gap: 8px; width: 100%; max-width: 460px; min-height: 44px; padding: 10px 16px; border-radius: 14px; background: #2563eb; color: #fff; font-size: 14px; font-weight: 500; text-align: center; text-decoration: none; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25); }
-.upd-pill:hover { background: #1d4ed8; }
+.upd-pill { display: flex; align-items: center; justify-content: center; gap: 8px; min-height: 44px; padding: 10px 16px; border-radius: 14px; background: var(--teks); color: #fff; font-size: 14px; font-weight: 500; text-align: center; text-decoration: none; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15); }
+.upd-pill:hover { background: #111827; }
 .upd-pill[hidden] { display: none; }
-.upd { display: flex; flex-direction: column; gap: 6px; margin-top: 12px; padding-top: 10px; border-top: 1px solid rgba(255, 255, 255, 0.14); }
+.upd { display: flex; flex-direction: column; gap: 6px; margin-top: 12px; padding-top: 10px; border-top: 1px solid var(--garis); }
 .upd-baris { display: flex; flex-wrap: wrap; gap: 6px; }
 .upd .pins-btn { display: inline-flex; align-items: center; text-decoration: none; white-space: nowrap; }
 .upd .pins-btn[hidden], .upd small[hidden] { display: none; }
-.upd small { font-size: 12px; line-height: 1.4; opacity: 0.8; }
-.upd-auto { display: flex; align-items: center; gap: 8px; font-size: 12px; opacity: 0.85; }
-.upd-auto input { margin: 0; }
+.upd small { font-size: 12px; line-height: 1.4; color: var(--redup); }
+.upd-auto { display: flex; align-items: center; gap: 8px; font-size: 12px; color: #4b5563; }
+.upd-auto input { margin: 0; accent-color: var(--merah); }
 
-.msg { min-height: 18px; margin: 8px 4px 0; font-size: 13px; opacity: 0.9; }
+.msg { min-height: 18px; margin: 8px 4px 0; font-size: 13px; color: #374151; }
+
+/* Menu samping */
+.dw { position: fixed; inset: var(--ab) 0 0 0; z-index: 50; }
+.dw[hidden] { display: none; }
+.dw-scrim { position: absolute; inset: 0; background: rgba(15, 18, 25, 0.5); opacity: 0; transition: opacity 0.25s ease; }
+.dw-panel { position: absolute; top: 0; bottom: 0; left: 0; display: flex; flex-direction: column; width: min(86vw, 320px); background: #fff; box-shadow: 4px 0 24px rgba(0, 0, 0, 0.18); transform: translateX(-102%); transition: transform 0.28s cubic-bezier(0.3, 0.7, 0.2, 1); }
+.dw.buka .dw-scrim { opacity: 1; }
+.dw.buka .dw-panel { transform: none; }
+.dw-list { flex: 1; margin: 0; padding: 10px; overflow-y: auto; overscroll-behavior: contain; list-style: none; }
+.dw-list ul { margin: 2px 0 6px; padding: 0 0 0 20px; list-style: none; }
+.dw-row { display: flex; align-items: center; gap: 14px; width: 100%; min-height: 48px; padding: 6px 12px; border: 0; border-radius: 12px; background: none; color: var(--teks); font: inherit; font-size: 16px; font-weight: 500; text-align: left; text-decoration: none; cursor: pointer; }
+.dw-row:hover { background: var(--latar); }
+.dw-row.aktif { background: var(--merah-pucat); color: var(--merah); font-weight: 700; }
+.dw-row .pin-ic { --ic: 34px; font-size: 16px; }
+.dw-row .dw-ik { flex: none; display: grid; place-items: center; width: 34px; height: 34px; }
+.dw-row .dw-ik svg { width: 24px; height: 24px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+.dw-nm { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.dw-cv { flex: none; width: 20px; height: 20px; fill: none; stroke: var(--redup); stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; transition: transform 0.2s ease; }
+.dw-row[aria-expanded="true"] .dw-cv { transform: rotate(90deg); }
+.dw-anak .dw-row { min-height: 42px; font-size: 15px; font-weight: 400; }
+.dw-anak .pin-ic { --ic: 28px; font-size: 14px; }
+.dw-judul { margin: 12px 12px 4px; font-size: 12px; font-weight: 600; letter-spacing: 0.04em; text-transform: uppercase; color: var(--redup); }
+.dw-foot { padding: 12px 20px; border-top: 1px solid var(--garis); font-size: 12px; color: var(--redup); overflow-wrap: anywhere; }
 
 /* Dialog */
 dialog {
   width: min(92vw, 380px);
   padding: 20px;
   border: 0;
-  border-radius: 14px;
-  background: #1f2937;
-  color: #fff;
+  border-radius: 16px;
+  background: #fff;
+  color: var(--teks);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.25);
 }
-dialog::backdrop { background: rgba(0, 0, 0, 0.6); }
+dialog::backdrop { background: rgba(15, 18, 25, 0.55); }
 dialog h2 { margin: 0 0 14px; font-size: 18px; }
-dialog label { display: block; margin-bottom: 14px; font-size: 14px; }
-dialog input[type=text] { display: block; width: 100%; margin-top: 6px; padding: 9px 10px; border: 0; border-radius: 8px; font-size: 15px; }
-dialog small { display: block; margin-top: 6px; opacity: 0.7; }
+dialog label { display: block; margin-bottom: 14px; font-size: 14px; font-weight: 500; }
+dialog input[type=text] { display: block; width: 100%; margin-top: 6px; padding: 10px 12px; border: 1px solid #d9dde4; border-radius: 10px; background: #fff; color: var(--teks); font: inherit; font-size: 15px; }
+dialog input[type=text]:focus { outline: 2px solid var(--merah); outline-offset: -1px; border-color: transparent; }
+dialog small { display: block; margin-top: 6px; color: var(--redup); }
 dialog menu { display: flex; justify-content: flex-end; gap: 8px; margin: 18px 0 0; padding: 0; }
-dialog menu button { padding: 9px 16px; border: 0; border-radius: 8px; background: #334155; color: #fff; font-size: 14px; cursor: pointer; }
-dialog menu button.pri { background: #2563eb; }
-dialog menu button.danger { background: #b91c1c; }
+dialog menu button { padding: 9px 16px; border: 0; border-radius: 10px; background: #eceef2; color: var(--teks); font: inherit; font-size: 14px; cursor: pointer; }
+dialog menu button.pri { background: var(--merah); color: #fff; }
+dialog menu button.danger { background: var(--merah-pucat); color: var(--merah); font-weight: 600; }
 #dlg-pin menu button.danger { margin-right: auto; }
 dialog button[hidden] { display: none; }
 .pin-row { display: flex; align-items: center; gap: 8px; margin-bottom: 4px; }
@@ -161,14 +248,18 @@ dialog button[hidden] { display: none; }
 #pin-info { flex: 1; margin: 0; }
 #pin-lain { margin: 6px 0 10px; }
 #pin-lain summary { cursor: pointer; font-size: 14px; padding: 6px 0; }
-.pin-err { color: #fca5a5; min-height: 1em; }
+.pin-err { color: var(--merah); min-height: 1em; }
 .hapus-teks { margin: 0; font-size: 14px; line-height: 1.45; overflow-wrap: anywhere; }
 
-@media (prefers-reduced-motion: reduce) { .flip-in, .face { transition: none; } }
+:focus-visible { outline: 2px solid var(--merah); outline-offset: 2px; }
+
+@media (prefers-reduced-motion: reduce) { .flip-in, .face, .dw-scrim, .dw-panel, .dw-cv { transition: none; } }
 @media (min-width: 768px) {
-  .jam, .pins, .upd-pill { max-width: 600px; }
+  .halaman > *, .pins { max-width: 600px; }
+  .pin-grid { grid-template-columns: repeat(6, minmax(0, 1fr)); }
   .pin-list { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); align-content: start; max-height: 260px; }
 }
-@media (max-width: 360px) {
-  .pin-grid { grid-template-columns: repeat(auto-fill, minmax(70px, 1fr)); gap: 10px 4px; }
+@media (max-width: 340px) {
+  .pin-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .pins { --ic: 50px; }
 }

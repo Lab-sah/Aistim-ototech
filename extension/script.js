@@ -128,7 +128,7 @@ function indukDomain(h) {
 function pinWarna(s) {
   let h = 0;
   for (const c of s || "") h = (h * 31 + c.codePointAt(0)) >>> 0;
-  return "hsl(" + (h % 360) + " 55% 40%)";
+  return h % 360; // warna dasar ikon (hue); latar, garis, dan hurufnya diturunkan di CSS lewat --hue
 }
 // Urutan ikon: emoji/huruf sendiri, favicon situs, huruf pertama nama. Favicon baru dipasang setelah berhasil
 // dimuat, jadi saat offline atau gagal tetap tampil huruf berwarna.
@@ -136,8 +136,8 @@ function pinIkon(p, favicon = true) {
   const s = document.createElement("span");
   s.className = "pin-ic";
   s.textContent = p.ikon || grafem(pinLabel(p), 1).toUpperCase() || "•";
+  s.style.setProperty("--hue", pinWarna(hostOf(p.href) || p.nama));
   if (p.ikon) return s;
-  s.style.background = pinWarna(hostOf(p.href) || p.nama);
   const fu = favicon ? faviconUrl(p.href) : "";
   if (fu) {
     const im = new Image();
@@ -146,7 +146,6 @@ function pinIkon(p, favicon = true) {
     im.referrerPolicy = "no-referrer";
     const pasang = () => {
       s.textContent = "";
-      s.style.background = "";
       s.classList.add("fav");
       s.append(im);
     };
@@ -165,17 +164,35 @@ function pinIkon(p, favicon = true) {
 const PLUS = '<svg viewBox="0 0 44 44" aria-hidden="true"><path d="M11.7 22h20.6M22 11.7v20.6"/></svg>';
 const IKON_UBAH = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20h4L19 9l-4-4L4 16zM14 6l4 4"/></svg>';
 const IKON_HAPUS = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 7h14M10 7V4h4v3M7 7l1 13h8l1-13"/></svg>';
+const IKON_RUMAH = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 11l8-7 8 7v8a1 1 0 0 1-1 1h-4v-6h-6v6H5a1 1 0 0 1-1-1z"/></svg>';
+const IKON_PANAH = '<svg class="dw-cv" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg>';
+const IKON_RIWAYAT = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3.5 12a8.5 8.5 0 1 0 2.6-6.1M3.5 4v4.5H8M12 7.5V12l3 2"/></svg>';
 
-function pinTile(p) {
-  const a = document.createElement("a");
-  a.className = "pin";
+// Tautan menu dibuka di tab baru (halaman ini tetap terbuka) dan dicatat sebagai "Terakhir" (klik biasa maupun klik tengah).
+function tautan(a, p) {
   a.href = p.href;
-  a.target = "_blank"; // dibuka di tab baru; halaman ini tetap terbuka
+  a.target = "_blank";
   a.rel = "noopener noreferrer";
   a.title = p.href;
+  a.addEventListener("click", () => catatTerakhir(p));
+  a.addEventListener("auxclick", (e) => { if (e.button === 1) catatTerakhir(p); });
+  return a;
+}
+function pinTile(p) {
   const nm = document.createElement("span");
   nm.className = "pin-nm";
   nm.textContent = pinLabel(p);
+  if (p.anak) { // grup dari main.json: membuka menu samping dengan grup itu terbuka
+    const b = document.createElement("button");
+    b.type = "button";
+    b.className = "pin";
+    b.title = pinLabel(p) + " · " + p.anak.length + " submenu";
+    b.append(pinIkon(p), nm);
+    b.addEventListener("click", () => bukaDrawer(p.id));
+    return b;
+  }
+  const a = tautan(document.createElement("a"), p);
+  a.className = "pin";
   a.append(pinIkon(p), nm);
   return a;
 }
@@ -201,7 +218,7 @@ function pinBaris(p, bersama) {
   const b = document.createElement("b");
   b.textContent = pinLabel(p);
   const sm = document.createElement("small");
-  sm.textContent = hostOf(p.href) || p.href;
+  sm.textContent = p.anak ? "Grup · " + p.anak.length + " submenu" : hostOf(p.href) || p.href;
   t.append(b, sm);
   li.append(pinIkon(p), t);
   if (bersama) {
@@ -236,7 +253,7 @@ function renderPins() {
   const semua = [...pinsV.filter((p) => !sendiri.has(p.id)).map((p) => [p, true]), ...pins.map((p) => [p, false])];
   const g = $("pin-grid");
   g.textContent = "";
-  semua.forEach(([p]) => g.append(pinTile(p)));
+  semua.filter(([p]) => p.favorit !== false).forEach(([p]) => g.append(pinTile(p))); // "favorit": false di main.json = hanya di menu samping
   if (pins.length < MAX_PIN) g.append(tambahTile());
   const l = $("pin-list");
   l.textContent = "";
@@ -246,6 +263,9 @@ function renderPins() {
   const penuh = pins.length >= MAX_PIN;
   $("pin-tambah").disabled = penuh;
   $("pin-tambah").textContent = penuh ? "Maksimal " + MAX_PIN + " menu" : "+ Tambah menu";
+  renderDrawer();
+  renderTerakhir();
+  renderCari();
 }
 
 // Kartu berbalik: depan = menu untuk dibuka, belakang = atur (tambah, ubah, hapus)
@@ -273,7 +293,9 @@ $("btn-flip").addEventListener("click", () => putar(true));
 $("btn-flip-balik").addEventListener("click", () => putar(false));
 $("pin-tambah").addEventListener("click", () => openPin(null));
 document.addEventListener("keydown", (e) => {
-  if (e.key === "Escape" && flipKartu.classList.contains("balik") && !document.querySelector("dialog[open]")) putar(false);
+  if (e.key !== "Escape" || document.querySelector("dialog[open]")) return;
+  if (!$("dw").hidden) tutupDrawer();
+  else if (flipKartu.classList.contains("balik")) putar(false);
 });
 
 // ---------- Tambah / ubah / hapus ----------
@@ -390,17 +412,51 @@ function bacaMenu(teks) {
   try { j = JSON.parse(teks); } catch (e) { throw new Error("bukan JSON yang sah (" + e.message + ")"); }
   const daftar = Array.isArray(j) ? j : j && Array.isArray(j.menu) ? j.menu : null;
   if (!daftar) throw new Error('harus berisi daftar "menu"');
+  return susunMenu(daftar);
+}
+// Menyusun dan memvalidasi daftar menu (dari main.json maupun salinan tersimpan). Dua jenis entri:
+//  - link: { nama, link, ikon, favorit }  (link wajib; "favorit": false = tidak tampil di grid, hanya di menu samping)
+//  - grup: { nama, ikon, favorit, anak: [ { nama, link, ikon } ] }  (nama wajib; tampil di menu samping sebagai grup yang bisa dibuka)
+const MAX_ANAK = 24;
+function susunMenu(daftar) {
   const items = [], lewat = [], ada = new Set();
+  const linkDari = (o) => (o ? normalUrl(typeof o.link === "string" ? o.link : typeof o.href === "string" ? o.href : "") : null);
   daftar.forEach((x, i) => {
     const no = "#" + (i + 1);
     const o = x && typeof x === "object" ? x : null;
-    const href = o ? normalUrl(typeof o.link === "string" ? o.link : typeof o.href === "string" ? o.href : "") : null;
+    if (!o) return lewat.push(no + " bukan objek");
+    const nama = typeof o.nama === "string" ? o.nama.trim().slice(0, 30) : "";
+    const ikon = typeof o.ikon === "string" ? grafem(o.ikon, 2) : "";
+    const favorit = o.favorit !== false;
+    if (Array.isArray(o.anak)) {
+      if (!nama) return lewat.push(no + " grup tanpa nama");
+      const id = "g" + idLink("https://grup.invalid/" + encodeURIComponent(nama.toLowerCase())).slice(1);
+      if (ada.has(id)) return lewat.push(no + " grup sama dengan sebelumnya");
+      if (items.length >= MAX_V) return lewat.push(no + " melebihi batas " + MAX_V + " menu");
+      const anak = [], adaAnak = new Set();
+      o.anak.forEach((y, j) => {
+        const nom = no + "." + (j + 1);
+        const oy = y && typeof y === "object" ? y : null;
+        const href = linkDari(oy);
+        if (!href) return lewat.push(nom + " link kosong atau tidak valid");
+        const ida = idLink(href);
+        if (adaAnak.has(ida)) return lewat.push(nom + " link sama dengan anak menu sebelumnya");
+        if (anak.length >= MAX_ANAK) return lewat.push(nom + " melebihi batas " + MAX_ANAK + " anak menu");
+        adaAnak.add(ida);
+        anak.push({ id: ida, nama: typeof oy.nama === "string" ? oy.nama.trim().slice(0, 30) : "", href, ikon: typeof oy.ikon === "string" ? grafem(oy.ikon, 2) : "" });
+      });
+      if (!anak.length) return lewat.push(no + " grup tanpa anak menu yang valid");
+      ada.add(id);
+      items.push({ id, nama, href: "", ikon, favorit, anak });
+      return;
+    }
+    const href = linkDari(o);
     if (!href) return lewat.push(no + " link kosong atau tidak valid");
     const id = idLink(href);
     if (ada.has(id)) return lewat.push(no + " link sama dengan menu sebelumnya");
     if (items.length >= MAX_V) return lewat.push(no + " melebihi batas " + MAX_V + " menu");
     ada.add(id);
-    items.push({ id, nama: typeof o.nama === "string" ? o.nama.trim().slice(0, 30) : "", href, ikon: typeof o.ikon === "string" ? grafem(o.ikon, 2) : "" });
+    items.push({ id, nama, href, ikon, favorit });
   });
   return { items, lewat };
 }
@@ -453,7 +509,7 @@ async function muatMenuBersama(paksa) {
 async function muatCacheMenu() {
   const c = await store.get("menuV", null);
   if (!c || typeof c !== "object") return;
-  pinsV = rapikanPins(c.items).slice(0, MAX_V);
+  pinsV = susunMenu(Array.isArray(c.items) ? c.items : []).items.slice(0, MAX_V);
   sumber = {
     t: typeof c.t === "number" ? c.t : 0,
     err: typeof c.err === "string" ? c.err.slice(0, 200) : "",
@@ -463,6 +519,191 @@ async function muatCacheMenu() {
   };
 }
 $("sumber-segar").addEventListener("click", () => muatMenuBersama(true));
+
+// ---------- Terakhir dibuka ----------
+// Id menu yang terakhir dibuka (terbaru lebih dulu), tampil sebagai chip di bawah grid. Hanya id yang disimpan; menu yang
+// sudah dihapus atau berubah dilewati saat ditampilkan.
+const MAX_TERAKHIR = 6;
+let terakhir = [];
+// Peta id -> menu berlink: menu bersama (termasuk anak menu grup) dan menu pribadi
+function petaMenu() {
+  const m = new Map();
+  for (const p of pinsV) { if (p.anak) p.anak.forEach((a) => m.set(a.id, a)); else m.set(p.id, p); }
+  for (const p of pins) m.set(p.id, p);
+  return m;
+}
+function catatTerakhir(p) {
+  terakhir = [p.id, ...terakhir.filter((x) => x !== p.id)].slice(0, MAX_TERAKHIR);
+  store.set("recent", terakhir).catch(() => {});
+  setTimeout(renderTerakhir, 0); // ditunda: tautan yang sedang diketuk tidak boleh diganti sebelum tabnya terbuka
+}
+function renderTerakhir() {
+  const peta = petaMenu();
+  const daftar = terakhir.map((id) => peta.get(id)).filter(Boolean);
+  const el = $("terakhir");
+  el.textContent = "";
+  el.hidden = !daftar.length;
+  daftar.forEach((p, i) => {
+    const a = tautan(document.createElement("a"), p);
+    a.className = "chip";
+    a.insertAdjacentHTML("afterbegin", IKON_RIWAYAT);
+    a.append(document.createTextNode((i === 0 ? "Terakhir: " : "") + pinLabel(p)));
+    el.append(a);
+  });
+}
+
+// ---------- Cari ----------
+// Menyaring semua menu berlink (termasuk anak menu grup; nama grup ikut dicocokkan). Enter membuka hasil pertama,
+// panah bawah pindah ke daftar hasil, Escape mengosongkan kolom.
+const inCari = $("cari");
+const kecil = (s) => String(s || "").toLowerCase();
+function renderCari() {
+  const q = kecil(inCari.value.trim());
+  $("hasil").hidden = !q;
+  if (!q) return;
+  const hasil = [], lihat = new Set();
+  const tambah = (p, induk) => {
+    if (lihat.has(p.id)) return;
+    if (kecil(p.nama).includes(q) || kecil(p.href).includes(q) || kecil(induk).includes(q)) {
+      lihat.add(p.id);
+      hasil.push({ p, induk });
+    }
+  };
+  for (const p of pinsV) { if (p.anak) p.anak.forEach((a) => tambah(a, p.nama)); else tambah(p, ""); }
+  for (const p of pins) tambah(p, "");
+  const l = $("hasil-list");
+  l.textContent = "";
+  hasil.slice(0, 30).forEach(({ p, induk }) => {
+    const li = document.createElement("li");
+    const a = tautan(document.createElement("a"), p);
+    const t = document.createElement("span");
+    t.className = "hasil-t";
+    const b = document.createElement("b");
+    b.textContent = pinLabel(p);
+    const sm = document.createElement("small");
+    sm.textContent = (induk ? induk + " · " : "") + (hostOf(p.href) || p.href);
+    t.append(b, sm);
+    a.append(pinIkon(p), t);
+    li.append(a);
+    l.append(li);
+  });
+  l.hidden = !hasil.length;
+  $("hasil-kosong").hidden = hasil.length > 0;
+}
+let cariT = 0;
+inCari.addEventListener("input", () => {
+  clearTimeout(cariT);
+  cariT = setTimeout(renderCari, 120);
+});
+inCari.addEventListener("keydown", (e) => {
+  if (e.key === "Escape" && inCari.value) {
+    e.stopPropagation();
+    inCari.value = "";
+    renderCari();
+  } else if (e.key === "Enter" || e.key === "ArrowDown") {
+    clearTimeout(cariT);
+    renderCari();
+    const a = $("hasil-list").querySelector("a");
+    if (!a) return;
+    e.preventDefault();
+    if (e.key === "Enter") a.click();
+    else a.focus();
+  }
+});
+
+// ---------- Menu samping ----------
+// Semua menu dalam satu daftar: menu bersama (grup bisa dibuka; anak menu baru dibuat saat grup dibuka), lalu menu pribadi.
+const dw = $("dw");
+const grupBuka = new Set(); // id grup yang sedang terbuka
+let dwT = 0;
+function drawerLink(p) {
+  const li = document.createElement("li");
+  const a = tautan(document.createElement("a"), p);
+  a.className = "dw-row";
+  const nm = document.createElement("span");
+  nm.className = "dw-nm";
+  nm.textContent = pinLabel(p);
+  a.append(pinIkon(p), nm);
+  a.addEventListener("click", () => setTimeout(tutupDrawer, 0));
+  li.append(a);
+  return li;
+}
+function drawerGrup(p) {
+  const li = document.createElement("li");
+  const b = document.createElement("button");
+  b.type = "button";
+  b.className = "dw-row";
+  const nm = document.createElement("span");
+  nm.className = "dw-nm";
+  nm.textContent = pinLabel(p);
+  b.append(pinIkon(p), nm);
+  b.insertAdjacentHTML("beforeend", IKON_PANAH);
+  const ul = document.createElement("ul");
+  ul.className = "dw-anak";
+  ul.id = "dw-" + p.id;
+  b.setAttribute("aria-controls", ul.id);
+  const atur = (buka) => {
+    b.setAttribute("aria-expanded", String(buka));
+    ul.hidden = !buka;
+    if (buka && !ul.firstChild) p.anak.forEach((a) => ul.append(drawerLink(a)));
+    if (buka) grupBuka.add(p.id);
+    else grupBuka.delete(p.id);
+  };
+  b.addEventListener("click", () => atur(b.getAttribute("aria-expanded") !== "true"));
+  atur(grupBuka.has(p.id));
+  li.append(b, ul);
+  return li;
+}
+function renderDrawer() {
+  const l = $("dw-list");
+  l.textContent = "";
+  const beranda = document.createElement("li");
+  const bb = document.createElement("button");
+  bb.type = "button";
+  bb.className = "dw-row aktif";
+  bb.innerHTML = '<span class="dw-ik">' + IKON_RUMAH + '</span><span class="dw-nm">Beranda</span>';
+  bb.addEventListener("click", tutupDrawer);
+  beranda.append(bb);
+  l.append(beranda);
+  const sendiri = new Set(pins.map((p) => p.id));
+  pinsV.filter((p) => !sendiri.has(p.id)).forEach((p) => l.append(p.anak ? drawerGrup(p) : drawerLink(p)));
+  if (pins.length) {
+    const h = document.createElement("li");
+    h.className = "dw-judul";
+    h.textContent = "Menu saya";
+    l.append(h);
+    pins.forEach((p) => l.append(drawerLink(p)));
+  }
+}
+function bukaDrawer(idGrup) {
+  clearTimeout(dwT);
+  if (idGrup) {
+    grupBuka.add(idGrup);
+    renderDrawer();
+  }
+  dw.hidden = false;
+  void dw.offsetWidth; // memulai transisi dari posisi tertutup
+  dw.classList.add("buka");
+  document.querySelector("main").inert = true; // fokus dan ketukan tidak menembus ke halaman di belakang
+  const tb = $("btn-drawer");
+  tb.setAttribute("aria-expanded", "true");
+  tb.setAttribute("aria-label", "Tutup menu samping");
+  const f = idGrup ? $("dw-list").querySelector('[aria-controls="dw-' + idGrup + '"]') : $("dw-list").querySelector(".dw-row");
+  if (f) f.focus({ preventScroll: true });
+}
+function tutupDrawer() {
+  if (dw.hidden) return;
+  dw.classList.remove("buka");
+  document.querySelector("main").inert = false;
+  const tb = $("btn-drawer");
+  tb.setAttribute("aria-expanded", "false");
+  tb.setAttribute("aria-label", "Buka menu samping");
+  tb.focus({ preventScroll: true });
+  clearTimeout(dwT);
+  dwT = setTimeout(() => { dw.hidden = true; }, 300);
+}
+$("btn-drawer").addEventListener("click", () => (dw.classList.contains("buka") ? tutupDrawer() : bukaDrawer()));
+$("dw-scrim").addEventListener("click", tutupDrawer);
 
 // ---------- Jam dan kata-kata ----------
 const QUOTES = [
@@ -482,6 +723,8 @@ function tick() {
   const now = new Date();
   $("clock").textContent = now.toLocaleTimeString("id-ID", { hour: "2-digit", minute: "2-digit", hourCycle: "h23" });
   $("date").textContent = now.toLocaleDateString("id-ID", { weekday: "long", day: "numeric", month: "long", year: "numeric" });
+  const j = now.getHours();
+  $("salam").textContent = "Selamat " + (j < 4 ? "malam" : j < 11 ? "pagi" : j < 15 ? "siang" : j < 18 ? "sore" : "malam");
   clearTimeout(tick.t);
   tick.t = setTimeout(tick, 60000 - (now.getTime() % 60000) + 50);
 }
@@ -584,7 +827,11 @@ function dariLuar(nilai) {
 }
 function pantau() {
   if (hasChrome) {
-    if (chrome.storage.onChanged) chrome.storage.onChanged.addListener((c, area) => { if (area === "local" && c.pins) dariLuar(c.pins.newValue); });
+    if (chrome.storage.onChanged) chrome.storage.onChanged.addListener((c, area) => {
+      if (area !== "local") return;
+      if (c.pins) dariLuar(c.pins.newValue);
+      if (c.recent) { terakhir = daftarTerakhir(c.recent.newValue); renderTerakhir(); }
+    });
   } else {
     window.addEventListener("storage", (e) => {
       if (e.key !== "pins") return;
@@ -596,9 +843,14 @@ function labelVersi() {
   try {
     const v = chrome.runtime.getManifest().version;
     $("ver").textContent = "Ototech Tab v" + v + (chrome.runtime.id ? " · ID extension: " + chrome.runtime.id : "");
+    $("dw-foot").textContent = "Ototech Tab v" + v;
   } catch (e) {
     $("ver").textContent = "Ototech Tab";
+    $("dw-foot").textContent = "Ototech Tab";
   }
+}
+function daftarTerakhir(v) {
+  return Array.isArray(v) ? v.filter((x) => typeof x === "string").slice(0, MAX_TERAKHIR) : [];
 }
 async function mulai() {
   tick();
@@ -609,6 +861,7 @@ async function mulai() {
     try { await store.set("pins", pins); } catch (e) {}
   }
   try { await muatCacheMenu(); } catch (e) {}
+  terakhir = daftarTerakhir(await store.get("recent", []));
   renderPins();
   tampilSumber();
   labelVersi();

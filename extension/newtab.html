@@ -7,9 +7,39 @@
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
+  <!-- Bilah atas: tombol menu samping + nama -->
+  <header class="appbar">
+    <button id="btn-drawer" class="ab-btn" type="button" aria-label="Buka menu samping" aria-controls="dw" aria-expanded="false">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
+    </button>
+    <span class="brand">Ototech</span>
+    <span class="ab-sp" aria-hidden="true"></span>
+  </header>
+
+  <!-- Menu samping: semua menu, grup bisa dibuka (anak menu dari main.json) -->
+  <div id="dw" class="dw" hidden>
+    <div id="dw-scrim" class="dw-scrim"></div>
+    <nav id="dw-panel" class="dw-panel" aria-label="Menu samping">
+      <ul id="dw-list" class="dw-list"></ul>
+      <div id="dw-foot" class="dw-foot"></div>
+    </nav>
+  </div>
+
   <main class="halaman">
     <!-- Muncul hanya bila ada versi yang lebih baru di GitHub -->
     <a id="upd-pill" class="upd-pill" href="#" target="_blank" rel="noopener noreferrer" hidden><span aria-hidden="true">⬆</span><span id="upd-pill-teks"></span></a>
+
+    <p id="salam" class="salam"></p>
+
+    <!-- Kolom cari: menyaring semua menu (termasuk anak menu) -->
+    <div class="cari">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/></svg>
+      <input id="cari" type="search" placeholder="Cari menu, mis. &quot;workspace&quot;" autocomplete="off" spellcheck="false" aria-label="Cari menu" aria-controls="hasil">
+    </div>
+    <section id="hasil" class="kartu hasil" aria-label="Hasil pencarian" hidden>
+      <ul id="hasil-list" class="hasil-list"></ul>
+      <p id="hasil-kosong" class="pins-kosong" hidden>Tidak ada menu yang cocok.</p>
+    </section>
 
     <!-- Kartu atas: jam dan kata-kata -->
     <section class="jam" aria-label="Jam dan kata-kata">
@@ -21,39 +51,44 @@
       </figure>
     </section>
 
-    <section class="pins" aria-label="Menu">
+    <section class="pins" aria-label="Menu Favorit">
       <!-- Kartu berbalik: depan = menu untuk dibuka, belakang = atur (ubah, hapus, tambah) -->
       <div id="flip" class="flip">
         <div id="flip-in" class="flip-in">
           <div id="face-depan" class="face depan">
             <div class="pins-head">
-              <h2>Menu</h2>
-              <button id="btn-flip" class="pins-btn" type="button" aria-controls="face-belakang" aria-expanded="false">Atur ⟲</button>
+              <h2>Menu Favorit</h2>
+              <button id="btn-flip" class="link-btn" type="button" aria-controls="face-belakang" aria-expanded="false">Atur <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg></button>
             </div>
-            <div id="pin-grid" class="pin-grid"></div>
+            <div class="face-body">
+              <div id="pin-grid" class="pin-grid"></div>
+            </div>
+            <div id="terakhir" class="terakhir" aria-label="Terakhir dibuka" hidden></div>
           </div>
           <div id="face-belakang" class="face belakang">
             <div class="pins-head">
               <h2>Atur menu</h2>
-              <button id="btn-flip-balik" class="pins-btn pri" type="button">Selesai ⟲</button>
+              <button id="btn-flip-balik" class="link-btn" type="button">Selesai</button>
             </div>
-            <p id="pin-kosong" class="pins-kosong" hidden>Belum ada menu.</p>
-            <ul id="pin-list" class="pin-list"></ul>
-            <div class="sumber">
-              <small id="sumber-info" role="status"></small>
-              <button id="sumber-segar" class="pins-btn" type="button">Segarkan</button>
-            </div>
-            <button id="pin-tambah" class="pin-tambah" type="button">+ Tambah menu</button>
-            <div class="upd">
-              <div class="upd-baris">
-                <button id="upd-cek" class="pins-btn" type="button">Periksa pembaruan</button>
-                <a id="upd-unduh" class="pins-btn pri" href="#" target="_blank" rel="noopener noreferrer" hidden>Unduh</a>
+            <div class="face-body">
+              <p id="pin-kosong" class="pins-kosong" hidden>Belum ada menu.</p>
+              <ul id="pin-list" class="pin-list"></ul>
+              <div class="sumber">
+                <small id="sumber-info" role="status"></small>
+                <button id="sumber-segar" class="pins-btn" type="button">Segarkan</button>
               </div>
-              <small id="upd-info" role="status"></small>
-              <small id="upd-cara" hidden>Ekstrak zip ke folder yang sama, lalu tekan ⟳ pada kartu extension di halaman Ekstensi. Menu tidak hilang.</small>
-              <label class="upd-auto"><input id="upd-auto" type="checkbox" checked> Periksa otomatis saat tab dibuka</label>
+              <button id="pin-tambah" class="pin-tambah" type="button">+ Tambah menu</button>
+              <div class="upd">
+                <div class="upd-baris">
+                  <button id="upd-cek" class="pins-btn" type="button">Periksa pembaruan</button>
+                  <a id="upd-unduh" class="pins-btn pri" href="#" target="_blank" rel="noopener noreferrer" hidden>Unduh</a>
+                </div>
+                <small id="upd-info" role="status"></small>
+                <small id="upd-cara" hidden>Ekstrak zip ke folder yang sama, lalu tekan ⟳ pada kartu extension di halaman Ekstensi. Menu tidak hilang.</small>
+                <label class="upd-auto"><input id="upd-auto" type="checkbox" checked> Periksa otomatis saat tab dibuka</label>
+              </div>
+              <small id="ver" class="ver"></small>
             </div>
-            <small id="ver" class="ver"></small>
           </div>
         </div>
       </div>

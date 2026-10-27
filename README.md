@@ -1,24 +1,35 @@
 # Ototech Tab
 
-Extension Chrome yang mengganti halaman **tab baru** dengan dua kartu: **jam dan kata-kata** di atas, lalu kartu **Menu** berisi pintasan ke situs yang sering dibuka, dengan tile **+** untuk menambah menu. Dibuat mengikuti Aistim Board (Aistim Tab), dengan nama dan ID extension sendiri.
+Extension Chrome yang mengganti halaman **tab baru** dengan tampilan bergaya aplikasi: menu samping (☰), kolom **cari**, kartu **jam dan kata-kata**, lalu kartu **Menu Favorit** berisi grid pintasan berikon bulat dan chip **Terakhir**. Dibuat dari Aistim Board (Aistim Tab), dengan nama dan ID extension sendiri.
 
 ## Fitur
 
-- **Jam dan kata-kata** (kartu atas): jam 24 jam, tanggal dalam bahasa Indonesia, dan satu kata-kata per hari. Semuanya dihitung di browser, tanpa jaringan.
-- **Tambah**: ketuk tile **+**, isi **Link** (dan **Nama** bila mau; kosong berarti nama situsnya), lalu Simpan. Link tanpa `https://` dilengkapi otomatis; hanya `http`/`https` yang diterima. Maksimal 24 menu.
-- **Menu bersama dari `main.json`**: menu juga diambil dari file [`main.json`](main.json) di repo ini. Menu bersama tampil lebih dulu, lalu menu pribadi. Di sisi belakang kartu (**Atur**) menu bersama diberi lencana `main.json` dan tombol **Segarkan**.
+- **Jam dan kata-kata** (kartu merah): jam 24 jam, tanggal dalam bahasa Indonesia, dan satu kata-kata per hari. Di atasnya ada sapaan sesuai jam. Semuanya dihitung di browser, tanpa jaringan.
+- **Menu Favorit**: grid ikon bulat berwarna dengan nama di bawahnya. Ketuk tile **+** untuk menambah menu: isi **Link** (dan **Nama** bila mau; kosong berarti nama situsnya), lalu Simpan. Link tanpa `https://` dilengkapi otomatis; hanya `http`/`https` yang diterima. Maksimal 24 menu pribadi.
+- **Cari**: kolom di atas menyaring semua menu, termasuk submenu grup (nama grup ikut dicocokkan). Enter membuka hasil pertama, panah bawah pindah ke daftar hasil, Escape mengosongkan.
+- **Terakhir**: chip di bawah grid (dapat digeser) berisi menu yang terakhir dibuka (maksimal 6), dibuka dari grid, pencarian, atau menu samping.
+- **Menu samping** (ikon ☰ di kiri atas): semua menu dalam satu daftar, dengan **Beranda** di atas. Grup dari `main.json` bisa dibuka untuk menampilkan submenunya; menu pribadi ada di bagian **Menu saya**. Escape atau ketuk bagian gelap untuk menutup.
+- **Menu bersama dari `main.json`**: menu juga diambil dari file [`main.json`](main.json) di repo ini. Menu bersama tampil lebih dulu, lalu menu pribadi. Di sisi belakang kartu (**Atur**) menu bersama diberi lencana `main.json` dan ada tombol **Segarkan**.
 
   ```json
   {
     "menu": [
       { "nama": "Erzap", "link": "https://erzap.com" },
       { "nama": "Trial", "link": "trial.erzap.com", "ikon": "🛒" },
-      { "link": "contoh.co.id/halaman" }
+      { "link": "contoh.co.id/halaman", "favorit": false },
+      {
+        "nama": "Logistik",
+        "ikon": "📦",
+        "anak": [
+          { "nama": "Stok Opname", "link": "https://opname.contoh.com" },
+          { "nama": "Pengiriman", "link": "kirim.contoh.com" }
+        ]
+      }
     ]
   }
   ```
 
-  - `link` wajib; `nama` dan `ikon` opsional. Maksimal 48 menu. Entri yang salah dilewati dan alasannya ditulis di status; file yang bukan JSON sah ditolak seluruhnya dan tab memakai salinan terakhir yang berhasil.
+  - **Menu biasa**: `link` wajib; `nama` dan `ikon` opsional. **Grup**: `nama` wajib, `anak` berisi menu biasa (maksimal 24 per grup); grup tampil di grid sebagai tile yang membuka menu samping dengan grup itu terbuka. `"favorit": false` menyembunyikan menu atau grup dari grid sehingga hanya ada di menu samping. Maksimal 48 menu. Entri yang salah dilewati dan alasannya ditulis di status; file yang bukan JSON sah ditolak seluruhnya dan tab memakai salinan terakhir yang berhasil.
   - **Keamanan**: file ini tidak ditandatangani, jadi siapa pun yang bisa mengubah `main.json` menentukan menu semua pengguna. Isinya divalidasi ketat dan tidak pernah dijalankan sebagai kode. Jaga akses tulis ke repo ini.
 - **Ubah dan hapus** ada di sisi belakang kartu: ketuk **Atur**, lalu **Ubah** atau **Hapus** per baris.
 - **Ikon otomatis** dari favicon situs lewat Google (hanya domain induk yang dikirim). Bisa diganti emoji atau huruf lewat **Ikon sendiri**.
